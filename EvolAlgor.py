@@ -5,17 +5,17 @@ from Graphcode import *
 
 seed = 568946
 numNodes = 128
-popsize = 50
+popsize = 20
 chrSize = int(numNodes * (numNodes - 1) / 2)
 varImmStringSize = 7
 initVar = [0, 0, 0, 0, 0, 0, 1]
 pop = []
 popFits = []
-alpha, recProb, decProb = 0.5, 0.8, 0.3
+alpha, recProb, decProb = 0.63, 0.126, 0.006666
 tSize = 5
 runs = 30
-gens = 10000
-rptIvl = 1000
+gens = 1000
+rptIvl = 20
 maxMuts = 3
 random.seed(seed)
 
@@ -55,16 +55,32 @@ def fitness(lst):
   #infectedLog = simulation(graph)
   #return(infectedLog.max())
   graph.updateInfected()
-  infects1 = np.sum(graph.currentInfected())
+  #infects1 = np.sum(graph.currentInfected())
   graph.updateInfected()
-  infects2 = np.sum(graph.currentInfected())
+  #deaths2 = graph.currentDeathCount()
   graph.updateInfected()
-  infects3 = np.sum(graph.currentInfected())
-  #print("\nFirst 3 timesteps:")
-  #print(infects1)
-  #print(infects2)
-  #print(infects3)
-  return(max(infects1, infects2, infects3))
+  #deaths3 = graph.currentDeathCount()
+  graph.updateInfected()
+  #deaths4 = graph.currentDeathCount()
+  graph.updateInfected()
+  #deaths5 = graph.currentDeathCount()
+  graph.updateInfected()
+  #deaths6 = graph.currentDeathCount()
+  graph.updateInfected()
+  #deaths7 = graph.currentDeathCount()
+  graph.updateInfected()
+  #deaths8 = graph.currentDeathCount()
+  graph.updateInfected()
+  #deaths9 = graph.currentDeathCount()
+  graph.updateInfected()
+  #deaths10 = graph.currentDeathCount()
+  graph.updateInfected()
+  deaths = graph.currentDeathCount()
+  #infects2 = np.sum(graph.currentInfected())
+  #print(deaths)
+  return(deaths)
+  #return(max(infects1, infects2))
+  #return(max(infects1, infects2, infects3))
   #return lst.count(1)
 
 
@@ -89,10 +105,18 @@ def matingEvent():
     child1[random.randint(0, len(child1)-1)] = random.randint(0, 1)
     child2[random.randint(0, len(child2)-1)] = random.randint(0, 1)
     pass
-  pop[tMems[0][0]] = child1
-  pop[tMems[1][0]] = child2
-  popFits[tMems[0][0]] = fitness(child1)
-  popFits[tMems[1][0]] = fitness(child2)
+  fit1 = fitness(child1)
+  fit2 = fitness(child2)
+  if(fit1 >= popFits[tMems[0][0]]):
+      pop[tMems[0][0]] = child1
+      popFits[tMems[0][0]] = fit1
+  if(fit2 >= popFits[tMems[1][0]]):
+      pop[tMems[1][0]] = child2
+      popFits[tMems[1][0]] = fit2
+  #pop[tMems[0][0]] = child1
+  #pop[tMems[1][0]] = child2
+  #popFits[tMems[0][0]] = fitness(child1)
+  #popFits[tMems[1][0]] = fitness(child2)
   pass
 
 
@@ -111,13 +135,15 @@ def evolve():
   print("MAX MAX:", chrSize)
   for run in range(runs):
     init()
+    #print("initalization complete")
     report(run, 0)
     for gen in range(1, gens + 1):
-      if gen % rptIvl == 0:
-        report(run, int(gen / rptIvl))
+        #print(gen)
+        if gen % rptIvl == 0:
+            report(run, int(gen / rptIvl))
+            pass
+        matingEvent()
         pass
-      matingEvent()
-      pass
     finalReport(run)
     pass
   print("Execution Complete!")
