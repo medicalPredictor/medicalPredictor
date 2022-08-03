@@ -1,0 +1,8 @@
+set terminal postscript colour
+set output "CovidModelerLogs.eps"
+plot "InfectedLog.txt", "DeathLog.txt", "LifeLog.txt"
+# set output "Var_of_population_over_time.eps"
+# plot "DeathLog.txt"
+# set output "Best_of_population_over_time.eps"
+# #set yrange [0.01:0.02]
+# plot "BestOverTime.txt"

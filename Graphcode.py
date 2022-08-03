@@ -34,7 +34,7 @@ class Graph:
 
     self.state = np.array([0 for _ in range(self.num_nodes)]) #sets all nodes to state uninfected
     # use self.state = np.zeros(self.num_nodes) ^ 
-    self.stateLog = []
+    #self.stateLog = []
     self.infected = np.array([0 for _ in range(self.num_nodes)]) #sets all nodes to not infected? 
     # use self.infected = np.zeros(self.num_nodes) ^ 
 

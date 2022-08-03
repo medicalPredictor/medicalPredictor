@@ -4,8 +4,13 @@
 #include <vector>
 #include <iostream>
 #include <time.h>
+#include <fstream>
 
 using namespace std;
+
+void ReadData(string input1, std::vector <int>  * listOfPoints, int linesize);
+void tokenize(std::string const str, const char delim, std::vector<int> * out);
+void writeToFile(vector <int> data, string filename);
 
 class Graph
 {
@@ -26,6 +31,17 @@ class Graph
 		int recoveries();
 		int death(int node);
 		int ImmunityDecay();
+		vector <int> getInfected();
+		vector < vector <int> > getCurrentVariantHistory();
+		int deathCount();
+		int lifeCount();
+		vector <int> runVariant(int variant);
+		int updateInfected();
+		void printAdj();
+		int newVariant(vector <int> bits);
+		void kill();
+		vector <int> nextTimeStep();
+		int numOfVariants();
 	private:
 		//Variables go here
 		double alpha;
@@ -47,13 +63,11 @@ class Graph
 int Graph::initialize(int nn1, vector <int> bitspray, int immunityStringSize, vector <int> bitspray2, double alpha1, double recProb1, double decProb1)
 {
 	nn = nn1;
-	//cout << "numNodes: " << nn << "\n";
 	int counter = 0;
 	vector <int> holder;
 	for(int x = 0; x < nn; x++)
 	{
 		holder.push_back(0);
-		//cout << holder[holder.size()-1] << " ";
 		state.push_back(0);
 		infected.push_back(0);
 	}
@@ -66,47 +80,19 @@ int Graph::initialize(int nn1, vector <int> bitspray, int immunityStringSize, ve
 	{
 		for(int y = x+1; y < adj[x].size(); y++)
 		{
-			//cout << adj[x][y] << " ";
 			adj[x][y] = bitspray[counter];
 			adj[y][x] = bitspray[counter];
 			counter++;
 		}
-		//cout << "\n";
 	}
-	//cout << "Counter: " << counter << "\n";
-	
-	// for(int x = 0; x < adj.size(); x++)
-// 	{
-// 		for(int y = 0; y < adj[x].size(); y++)
-// 		{
-// 			cout << adj[x][y] << " ";
-// 			//adj[x][y] = bitspray[counter];
-// 			//counter++;
-// 		}
-// 		cout << "\n";
-// 	}
-// 	cout << "State:\n";
-// 	for(int x = 0; x < nn; x++)
-// 	{
-// 		cout << state[x] << " ";
-// 	}
-// 	cout << "\n";
-// 	cout << "Infected:\n";
-// 	for(int x = 0; x < nn; x++)
-// 	{
-// 		cout << infected[x] << " ";
-// 	}
-// 	cout << "\n";
+
 	alpha = alpha1;
 	recProb = recProb1;
 	decProb = decProb1;
 	deathProb = 0.00168214;
 	
-	//cout << alpha << " " << recProb << " " << decProb << " " << deathProb << "\n";
-	
 	immunitySize = immunityStringSize;
 	addVariant(bitspray2, immunitySize);
-	//printVariantList();
 	
 	vector <int> holder2;
 	for(int y = 0; y < immunitySize; y++)
@@ -119,8 +105,6 @@ int Graph::initialize(int nn1, vector <int> bitspray, int immunityStringSize, ve
 		immunityDic.push_back(holder2);
 	}
 	
-	//printImmunityList();
-	
 	for(int x = holder.size(); x > 0; x--)
 	{
 		holder.pop_back();
@@ -129,11 +113,8 @@ int Graph::initialize(int nn1, vector <int> bitspray, int immunityStringSize, ve
 	{
 		variantHistory.push_back(holder);
 	}
-	//cout << variantHistory.size() << "\n";
 	
 	deathcount = 0;
-	
-	//printVariantHistory();
 	
 	return(0);
 }
@@ -216,6 +197,26 @@ vector <int> Graph::getState()
 	return(state);
 }
 
+vector <int> Graph::getInfected()
+{
+	return(infected);
+}
+
+vector < vector <int> > Graph::getCurrentVariantHistory()
+{
+	return(variantHistory);
+}
+
+int Graph::deathCount()
+{
+	return(deathcount);
+}
+
+int Graph::lifeCount()
+{
+	return(nn - deathcount);
+}
+
 int Graph::infect(int node, int variant)
 {
 	if(node < 0 | node >= nn)
@@ -249,8 +250,6 @@ int Graph::infect(int node, int variant)
 				immunityDic[node][x] = immunityDic[node][x] + VariantDic[variant][x];
 			}
 			variantHistory[node].push_back(variant+1);
-			//printVariantList();
-			//printImmunityList();
 			return(0);
 		}
 	}
@@ -280,7 +279,7 @@ int Graph::removeImmunity(int node)
 		cout << "Error. Node outside Bounds.\n";
 		return(2);
 	}
-	if(state[node] == -1) //(maybe remove this?)
+	if((state[node] < 1) && (state[node] != -2)) //(maybe remove this?)
 	{
 		state[node] = 0;
 		if(variantHistory[node].size() > 0)
@@ -303,9 +302,8 @@ double Graph::calcExtra(vector <int> Ac, int x, int totalBits, int variant)
 	{
 		return(0.0);
 	}
-	//vector <int> vec;
 	int mismatches = 0;
-	if(Ac[x] > 1)
+	if(Ac[x] > 0)
 	{
 		int dif = 0;
 		for (int y = 0; y < VariantDic[variant].size(); y++)
@@ -317,8 +315,6 @@ double Graph::calcExtra(vector <int> Ac, int x, int totalBits, int variant)
 			}
 		}
 	}
-	//cout << "mismatches: ";
-	//cout << mismatches << "\n";
 	return(mismatches/totalBits);
 }
 
@@ -331,39 +327,30 @@ vector <double> Graph::infectionProb(vector <int> Ac, int variant)
 	for(int x = 0; x < VariantDic[variant].size(); x++)
 	{
 		totalBits = totalBits + VariantDic[variant][x];
-		//cout << VariantDic[variant][x] << " ";
 	}
-	//cout << "\n";
-	//cout << totalBits << "\n";
+
 	double a = 0.0;
 	for (int x = 0; x < Ac.size(); x++)
 	{
 		a = calcExtra(Ac, x, totalBits, variant);
-		//cout << a << "\n";
 		extra.push_back(a);
 	}
 	
 	double b = log(1- alpha);
-	//cout << "\n" << b << "\n";
 	for(int x = 0; x < Ac.size(); x++)
 	{
 		extra2.push_back(Ac[x]*b);
 	}
 	
-	//printVector(extra2);
-	
 	for(int x = 0; x < Ac.size(); x++)
 	{
 		extra2[x] = 1 - exp(extra2[x]);
 	}
-	//cout << "extra2 second time\n";
-	//printVector(extra2);
-	
+
 	for(int x = 0; x < Ac.size(); x++)
 	{
 		probs.push_back(extra2[x]*extra[x]);
 	}
-	//printVector(probs);
 	
 	return(probs);
 }
@@ -416,7 +403,6 @@ int Graph::recoveries()
 		if(state[x] >= 1)
 		{
 			randVar = (rand()%100)/100.0;
-			//cout << randVar << "\n";
 			if(randVar < recProb)
 			{
 				unInfect(x);
@@ -444,20 +430,124 @@ int Graph::death(int node)
 
 int Graph::ImmunityDecay()
 {
-	
+	int size = 0;
+	double rand1 = 0.0;
+	for(int x = 0; x < nn; x++)
+	{
+		if((variantHistory[x].size() > 0) && (state[x] < 1) && (state[x] != -2)) //maybe remove (state < 1) unless variantHistory.size*( > 2)
+		{
+			rand1 = (rand()%100)/100.0;
+			if(rand1 < decProb)
+			{
+				removeImmunity(x);
+			}
+		}
+	}
 	return(0);
 }
 
+vector <int> Graph::runVariant(int variant)
+{
+	vector <int> newInfections;
+	double rands = 0.0;
+	vector <int> Ac = calcAc(variant);
+	vector <double> infectProb = infectionProb(Ac, variant);
+	for(int x = 0; x < nn; x++)
+	{
+		rands = (rand()%100)/100.0;
+		if(rands < infectProb[x])
+		{
+			newInfections.push_back(1);
+		}
+		else
+		{
+			newInfections.push_back(0);
+		}
+	}
+	return(newInfections);
+}
 
-int main()
+int Graph::updateInfected()
+{
+	vector < vector <int> > infectionListList;
+	vector <int> holder;
+	for(int x = 0; x < VariantDic.size(); x++)
+	{
+		holder = runVariant(x);
+		ImmunityDecay();
+		recoveries();
+		kill();
+		runInfections(holder, x);
+	}
+	return(0);
+}
+
+void Graph::printAdj()
+{
+	for(int x = 0; x < adj.size(); x++)
+	{
+		for(int y = 0; y < adj[x].size(); y++)
+		{
+			cout << adj[x][y] << " ";
+		}
+		cout << "\n";
+	}
+}
+
+int Graph::newVariant(vector <int> bits)
+{
+	int counter = 0;
+	vector <int> holder;
+	int worked = 1;
+	for(int x = 0; x < immunitySize; x++)
+	{
+		holder.push_back(bits[x]);
+	}
+	VariantDic.push_back(holder);
+	int node = rand()%nn;
+	worked = infect(node, VariantDic.size()-1);
+	while(worked > 0)
+	{
+		node = rand()%nn;
+		worked = infect(node, VariantDic.size()-1);
+		counter++;
+		if(counter > nn)
+		{
+			cout << "New Variant failed to infect.\n";
+			return(1);
+		}
+	}
+	return(0);
+}
+
+void Graph::kill()
+{
+	double rands = 0.0;
+	for(int x = 0; x < nn; x++)
+	{
+		if(state[x] > 0)
+		{
+			rands = (rand()%100)/100.0;
+			if(rands < deathProb)
+			{
+				death(x);
+			}
+		}
+	}
+}
+
+
+int tests()
 {
 	srand((int)time(NULL));
 	Graph a;
 	int bits1[] = {0,1,1,1,0,1,0,0,1,1,1,0,0,0,1,1,1,1,1,0,0,0,0,0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,0,0,0,0,1,1,1,0,1,0,1,1,0,0,1,0,1,0};
 	vector <int> bits;
 	std::copy(std::begin(bits1), std::end(bits1), std::back_inserter(bits));
+	
 	cout << "bitstring length: " << bits.size() << "\n";
-	a.initialize(5, bits, 4, bits, 0.63, 0.125514, 0.006666417986643);
+	a.initialize(10, bits, 4, bits, 0.63, 0.125514, 0.006666417986643);
+	//a.initialize(5, bits, 4, bits, 0.63, 0.125514, 0.5);
 	a.infect(0,0);
 	vector <int> cState = a.getState();
 	printVector(cState);
@@ -509,7 +599,12 @@ int main()
 	cState = a.getState();
 	printVector(cState);
 	
+	cout << "killing 4\n";
 	a.death(4);
+	cState = a.getState();
+	printVector(cState);
+	
+	a.unInfect(1);
 	cState = a.getState();
 	printVector(cState);
 	
@@ -517,6 +612,201 @@ int main()
 	cState = a.getState();
 	printVector(cState);
 	
+	a.infect(2,0);
+	cState = a.getState();
+	printVector(cState);
+	
+	newInfections.clear();
+	
+	newInfections = a.runVariant(0);
+	cState = a.getState();
+	printVector(cState);
+	
+	a.runInfections(newInfections, 0);
+	cState = a.getState();
+	printVector(cState);
+	
+	a.unInfect(0);
+	cState = a.getState();
+	printVector(cState);
+	
+	a.removeImmunity(0);
+	cState = a.getState();
+	printVector(cState);
+	
+	a.updateInfected();
+	cState = a.getState();
+	printVector(cState);
+	
+	a.printAdj();
+	
+	int bits2[] = {1,0,0,1,1,1};
+	std::copy(std::begin(bits2), std::end(bits2), std::back_inserter(bits));
+	
+	a.newVariant(bits);
+	cState = a.getState();
+	printVector(cState);
+	
 	return(0);
 }
 
+vector <int> Graph::nextTimeStep()
+{
+	//cout << "Inside nextTimeStep\n";
+	vector <int> stats;
+	int deaths = 0;
+	int life = 0;
+	vector <int> infected;
+	int sumInf = 0;
+	updateInfected();
+	//cout << "infected updated\n";
+	infected = getInfected();
+	//cout << "infected aquired\n";
+	//printVector(infected);
+	for(int x = 0; x < infected.size(); x++)
+	{
+		sumInf += infected[x];
+	}
+	
+	deaths = deathCount();
+	life = lifeCount();
+	
+	stats.push_back(sumInf);
+	stats.push_back(deaths);
+	stats.push_back(life);
+	
+	return(stats);
+}
+
+vector <int> makeNewVariant(vector <int> bits, int length)
+{
+	int rands = rand()%(bits.size()-length);
+	vector <int> output;
+	for(int x = rands; x < rands + length; x++)
+	{
+		output.push_back(bits[x]);
+	}
+	return(output);
+}
+
+int Graph::numOfVariants()
+{
+	return(VariantDic.size());
+}
+
+int main()
+{
+	//tests();
+	int newVariantsFlag = 0;
+	srand((int)time(NULL));
+	std::vector <int>  listOfPoints;
+	ReadData("bs_test.txt", &listOfPoints, 100000);
+	//printVector(listOfPoints);
+	
+	vector <int> infectedLog;
+	vector <int> deathLog;
+	vector <int> lifeLog;
+	
+	int immunityLength = 7;
+	
+	Graph a;
+	a.initialize(256, listOfPoints, immunityLength, listOfPoints, 0.63, 0.126, 0.006666);
+	//a.printAdj();
+	a.infect(0,0);
+	vector <int> infected;
+	vector <int> states;
+	infected = a.getInfected();
+	//printVector(infected);
+	int max_timeSteps = 1000;
+	int count = 0;
+	double variantProb = 0.0001;
+	
+	vector <int> stats;
+	stats = a.nextTimeStep();
+	printVector(stats);
+	infectedLog.push_back(stats[0]);
+	deathLog.push_back(stats[1]);
+	lifeLog.push_back(stats[2]);
+	double variantTest = 0.0;
+	
+	std::vector <int> variant2;
+	
+	while((stats[0] > 0) && (count < max_timeSteps))
+	{
+		if(newVariantsFlag == 1)
+		{
+			variantTest = (rand()%100)/100.0;
+			if(variantTest < variantProb)
+			{
+				cout << "Adding New Variant\n";
+				variant2 = makeNewVariant(listOfPoints, immunityLength);
+				a.newVariant(variant2);
+			}
+		}
+		stats = a.nextTimeStep();
+		//printVector(stats);
+		states = a.getState();
+		//cout << "\n";
+		//printVector(states);
+		stats = a.nextTimeStep();
+		infectedLog.push_back(stats[0]);
+		deathLog.push_back(stats[1]);
+		lifeLog.push_back(stats[2]);
+		count++;
+	}
+	int final1 = a.numOfVariants();
+	cout << final1 << "\n";
+	writeToFile(infectedLog, "InfectedLog.txt");
+	writeToFile(deathLog, "DeathLog.txt");
+	writeToFile(lifeLog, "LifeLog.txt");
+	return(0);
+}
+
+void ReadData(string input1, std::vector <int> * listOfPoints, int linesize)
+{//read in the data
+
+	fstream input;
+	char buf1[linesize];
+	string buf2;
+    string line;
+	
+	string inputFile = input1;
+	
+    std::vector<int> out;
+	input.open(inputFile,ios::in);
+	input.getline(buf1, linesize); //Get first line
+    line = buf1;
+    tokenize(line, '\t', &out);
+    (*listOfPoints) = out;
+	input.close();
+}
+
+void tokenize(std::string const str, const char delim, std::vector<int> * out)
+{
+	std::stringstream ss(str);
+	std::string s;
+	std::vector<string> temp;
+	while(std::getline(ss, s, delim))
+	{
+		temp.push_back(s);
+	}
+	
+	std::vector<string>:: iterator it;  
+    for(it = temp.begin(); it != temp.end(); ++it) 
+	{
+		out->push_back(stod(*it));
+	}
+}
+
+void writeToFile(vector <int> a, string filename)
+{
+    fstream aus;  //output file
+    aus.open(filename,ios::out);
+    aus.precision(10);
+       
+    for(int i = 0; i < a.size(); i++)
+    {
+        aus << a[i] << "\n";
+    }
+    aus.close();
+}
