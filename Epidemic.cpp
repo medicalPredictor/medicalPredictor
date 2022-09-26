@@ -21,3 +21,11 @@ int Epidemic::initialize(Graph network, double alpha, int immuneSize, vector<boo
     this->probIR = probIR;
     return (0);
 }
+/**
+ *
+ * @param dogs
+ * @return
+ */
+int Epidemic::thing(int dogs){
+
+}
