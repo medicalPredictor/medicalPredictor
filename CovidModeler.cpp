@@ -1,5 +1,5 @@
 #include <cmath>
-#include <list>
+#include <list> 
 #include <sstream>
 #include <vector>
 #include <iostream>
@@ -391,9 +391,9 @@ int Graph::removeImmunity(int node)
  *
  * @param Ac  Integer vector representing the number of neighbours each node has that is infected with the variant passed.
  * @param x  index of node involved in the calculation.
- * @param totalBits  length of 
- * @param variant  Length of immunity string. 
- * @return          If the program completes successfully, returns 0.
+ * @param totalBits  length of variant bitstring.
+ * @param variant  index of variant in VariantDic.
+ * @return          Returns the total number of mismatches between the immunity string and the variant string.
  */
 double Graph::calcExtra(vector <int> Ac, int x, int totalBits, int variant)
 {
@@ -418,11 +418,11 @@ double Graph::calcExtra(vector <int> Ac, int x, int totalBits, int variant)
 }
 
 /**
- * Adds a new variant to the simulation.
+ * Calculates the probability of infection of all nodes given a variant. Ask for more details on calculation.
  *
- * @param bits  Integer vector representing the immunity string for the new variant.
- * @param len  Length of immunity string. 
- * @return          If the program completes successfully, returns 0.
+ * @param Ac  Integer vector representing the number of neighbours each node has that are infected with with the given variant.
+ * @param variant  index of variant in VariantDic.
+ * @return         Returns the probability of infection for all nodes, and returned as a single vector.
  */
 vector <double> Graph::infectionProb(vector <int> Ac, int variant)
 {
@@ -462,11 +462,10 @@ vector <double> Graph::infectionProb(vector <int> Ac, int variant)
 }
 
 /**
- * Adds a new variant to the simulation.
+ * Calculates the number of infected neighbours for each node for a given variant.
  *
- * @param bits  Integer vector representing the immunity string for the new variant.
- * @param len  Length of immunity string. 
- * @return          If the program completes successfully, returns 0.
+ * @param variant  Integer vector representing the immunity string for the new variant.
+ * @return         A vector of integers representing the number of neighbouring nodes that are infected with the passed variant.
  */
 vector <int> Graph::calcAc(int variant)
 {
@@ -497,10 +496,10 @@ vector <int> Graph::calcAc(int variant)
 }
 
 /**
- * Adds a new variant to the simulation.
+ * Given a vector representing the next nodes to be infected, infect each one with the given variant.
  *
- * @param bits  Integer vector representing the immunity string for the new variant.
- * @param len  Length of immunity string. 
+ * @param new1  Vector, where the index of the vector that has a value 1 indicates the index of the node that is to be infected, and 0 indicates the index of the node that is not.
+ * @param variant   index of variant in VariantDic.
  * @return          If the program completes successfully, returns 0.
  */
 int Graph::runInfections(vector <int> new1, int variant)
@@ -516,10 +515,8 @@ int Graph::runInfections(vector <int> new1, int variant)
 }
 
 /**
- * Adds a new variant to the simulation.
+ * Checks each node to see if it recovers from infection during this timestep and uninfects them. The chance of recovery is defined in recProb.
  *
- * @param bits  Integer vector representing the immunity string for the new variant.
- * @param len  Length of immunity string. 
  * @return          If the program completes successfully, returns 0.
  */
 int Graph::recoveries()
@@ -540,10 +537,9 @@ int Graph::recoveries()
 }
 
 /**
- * Adds a new variant to the simulation.
+ * Changes the passed node to the dead state. Ensures the node exists (>0, < total number of nodes). Ensures the node is infected (state = 1), just so it's not an arbirary death. Updates internal datastructures to reflect the new information.
  *
- * @param bits  Integer vector representing the immunity string for the new variant.
- * @param len  Length of immunity string. 
+ * @param node  index of the variant to be put to death.
  * @return          If the program completes successfully, returns 0.
  */
 int Graph::death(int node)
@@ -563,10 +559,8 @@ int Graph::death(int node)
 }
 
 /**
- * Adds a new variant to the simulation.
+ * Checks each node to see if it loses immunity to the oldest variant it still has immunity to during this timestep and removes immunity from them. The chance of immunity decay is defined in decProb. The node has have been infected previously at least once (have a variant history vector size > 0), and must be recovered from infection but not dead.
  *
- * @param bits  Integer vector representing the immunity string for the new variant.
- * @param len  Length of immunity string. 
  * @return          If the program completes successfully, returns 0.
  */
 int Graph::ImmunityDecay()
@@ -588,11 +582,10 @@ int Graph::ImmunityDecay()
 }
 
 /**
- * Adds a new variant to the simulation.
+ * Given a variant, calculate the infection probability for each node, and return a vector indicating which nodes will be infected with that variant this timestep.
  *
- * @param bits  Integer vector representing the immunity string for the new variant.
- * @param len  Length of immunity string. 
- * @return          If the program completes successfully, returns 0.
+ * @param variant   index of variant in VariantDic. 
+ * @return          Vector of integers representing which nodes are to be infected with the passed variant during the current timestep.
  */
 vector <int> Graph::runVariant(int variant)
 {
@@ -616,33 +609,35 @@ vector <int> Graph::runVariant(int variant)
 }
 
 /**
- * Adds a new variant to the simulation.
+ * Runs the next timestep. In this function we: calculate the next to be infected for each variant, check who loses immunty and remove it, check who recovers and change state, check who dies and kill them, then infect anyone who needs to be infected. Currently we infect in variant dictionary order. 
  *
- * @param bits  Integer vector representing the immunity string for the new variant.
- * @param len  Length of immunity string. 
  * @return          If the program completes successfully, returns 0.
  */
 int Graph::updateInfected()
 {
 	vector < vector <int> > infectionListList;
-	vector <int> holder;
+	vector < vector <int> > holder;
 	for(int x = 0; x < VariantDic.size(); x++)
 	{
-		holder = runVariant(x);
-		ImmunityDecay();
-		recoveries();
-		kill();
-		runInfections(holder, x);
+		holder.push_back(runVariant(x));
 	}
+	
+	ImmunityDecay();
+	recoveries();
+	kill();
+	
+	for(int x = 0; x < VariantDic.size(); x++)
+	{
+		runInfections(holder[x], x);
+	}
+	
 	return(0);
 }
 
 /**
- * Adds a new variant to the simulation.
+ * Prints the Adjacancy matrix to the commandline. Mostly for debgging purposes.
  *
- * @param bits  Integer vector representing the immunity string for the new variant.
- * @param len  Length of immunity string. 
- * @return          If the program completes successfully, returns 0.
+ * @return
  */
 void Graph::printAdj()
 {
@@ -657,11 +652,10 @@ void Graph::printAdj()
 }
 
 /**
- * Adds a new variant to the simulation.
+ * Adds a new variant to the simulation and infects somebody who is not currently infected.
  *
  * @param bits  Integer vector representing the immunity string for the new variant.
- * @param len  Length of immunity string. 
- * @return          If the program completes successfully, returns 0.
+ * @return          If the program completes successfully, returns 0. If the new variant failed to infect someone, returns 1.
  */
 int Graph::newVariant(vector <int> bits)
 {
@@ -690,11 +684,9 @@ int Graph::newVariant(vector <int> bits)
 }
 
 /**
- * Adds a new variant to the simulation.
+ * Checks which nodes are dying this timestep assuming the node is currently alive, and kills them.
  *
- * @param bits  Integer vector representing the immunity string for the new variant.
- * @param len  Length of immunity string. 
- * @return          If the program completes successfully, returns 0.
+ * @return
  */
 void Graph::kill()
 {
@@ -713,10 +705,8 @@ void Graph::kill()
 }
 
 /**
- * Adds a new variant to the simulation.
+ * Debugging Tests.
  *
- * @param bits  Integer vector representing the immunity string for the new variant.
- * @param len  Length of immunity string. 
  * @return          If the program completes successfully, returns 0.
  */
 int tests()
@@ -833,11 +823,9 @@ int tests()
 }
 
 /**
- * Adds a new variant to the simulation.
+ * Updates the Graph object for the next timestep, and returns the number of currently infected nodes, the number of cumulative deaths, and number of currently alive nodes.
  *
- * @param bits  Integer vector representing the immunity string for the new variant.
- * @param len  Length of immunity string. 
- * @return          If the program completes successfully, returns 0.
+ * @return       A vector conatining: the number of currently infected nodes, the number of cumulative deaths, and number of currently alive nodes.
  */
 vector <int> Graph::nextTimeStep()
 {
@@ -868,10 +856,10 @@ vector <int> Graph::nextTimeStep()
 }
 
 /**
- * Adds a new variant to the simulation.
+ * Given given a bitstring, start at a random location in the string, and extract a bitstring of length length to use as the next immunity string for a new variant.
  *
- * @param bits  Integer vector representing the immunity string for the new variant.
- * @param len  Length of immunity string. 
+ * @param bits  Integer vector of zeros and ones. Can be of any length greater than varianble length.
+ * @param length  Length of immunity string. 
  * @return          If the program completes successfully, returns 0.
  */
 vector <int> makeNewVariant(vector <int> bits, int length)
@@ -886,11 +874,9 @@ vector <int> makeNewVariant(vector <int> bits, int length)
 }
 
 /**
- * Adds a new variant to the simulation.
+ * Returns the current number of variants in the simulation
  *
- * @param bits  Integer vector representing the immunity string for the new variant.
- * @param len  Length of immunity string. 
- * @return          If the program completes successfully, returns 0.
+ * @return         Integer representing the total number of variants currently in the simulation.
  */
 int Graph::numOfVariants()
 {
@@ -898,10 +884,8 @@ int Graph::numOfVariants()
 }
 
 /**
- * Adds a new variant to the simulation.
+ * Main used to testing purposes. Can be removed later. 
  *
- * @param bits  Integer vector representing the immunity string for the new variant.
- * @param len  Length of immunity string. 
  * @return          If the program completes successfully, returns 0.
  */
 int main()
@@ -973,11 +957,12 @@ int main()
 }
 
 /**
- * Adds a new variant to the simulation.
+ * Reads in a txt file and saves to the vector of ints passed to the function.
  *
- * @param bits  Integer vector representing the immunity string for the new variant.
- * @param len  Length of immunity string. 
- * @return          If the program completes successfully, returns 0.
+ * @param input1  name of file to be imported.
+ * @param listOfPoints  pointer to a vector of integers to be populated with the information from the input.
+ * @param linesize  Number of characters expected in each line of the input file.
+ * @return        
  */
 void ReadData(string input1, std::vector <int> * listOfPoints, int linesize)
 {//read in the data
@@ -999,11 +984,12 @@ void ReadData(string input1, std::vector <int> * listOfPoints, int linesize)
 }
 
 /**
- * Adds a new variant to the simulation.
+ * Takes a string of characters and delimits them by the passed delimiter. 
  *
- * @param bits  Integer vector representing the immunity string for the new variant.
- * @param len  Length of immunity string. 
- * @return          If the program completes successfully, returns 0.
+ * @param str  string to be delimited.
+ * @param delim  character representing the delimiter to be used to break up the string.
+ * @param out pointer to a vector of ints that will be populated by the delimited string information.
+ * @return      
  */
 void tokenize(std::string const str, const char delim, std::vector<int> * out)
 {
@@ -1023,11 +1009,11 @@ void tokenize(std::string const str, const char delim, std::vector<int> * out)
 }
 
 /**
- * Adds a new variant to the simulation.
+ * Given a vector of ints, and a filename, write the values in the vector to the file, one int per line.
  *
- * @param bits  Integer vector representing the immunity string for the new variant.
- * @param len  Length of immunity string. 
- * @return          If the program completes successfully, returns 0.
+ * @param a  vector of integers to be written to file.
+ * @param filename  string representing the file to be written to. Anything in the file before will be overwritten.
+ * @return    
  */
 void writeToFile(vector <int> a, string filename)
 {
