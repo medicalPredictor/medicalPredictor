@@ -1,7 +1,7 @@
 #include "Graph.h"
 
 /**
- * Fitness functions for our evolver.
+ * Scales our data to realworld data
  * INPUT:
  * intData -> data from the M.P
  * timeScale -> averaging done by real world data at each timestep
@@ -30,22 +30,15 @@ float ** aggregateData(vector<float> intData, vector<float> timeScale, int typeA
 }
 
 /**
- * Prints the adjacency lists representing the network.  Each line starts with the node followed
- * by a tab character.  Then each node it has adjacency to is printed, separated by a space.
- *
- * @param numNodes  Number of nodes.
- * @param bitspray  Vector of integers representing the adjacency matrix of the graph.  TODO: replace with bitsprayer object.
- * @return          Keep the system happy.
+* Takes real data and simulated data, outputs difference in points squared
+* INPUT:
+* realData -> data from real world location
+* simData -> data made from M.P
+* OUTPUT:
+* variance -> summed difference squared
  */
-int Graph::printAdjLists() {
-    for (int from=0; from<numNodes; from++){
-        cout<<from<<"\t";
-        for (int to=0; to<numNodes; to++){
-            if (to != from && adj[from][to]){
-                cout<<to<<" ";
-            }
-        }
-        cout<<endl;
-    }
-    return (0);
+int vars(vector<float> realData, vector<float> simData) {
+    variance = 0;
+    // calculates variance :^)
+    return (variance);
 }
