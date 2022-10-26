@@ -22,14 +22,21 @@ class Bitsprayer {
     int randomize();
     int copy(Bitsprayer &other);
     int print();
+    static int destroy();
+
+    int twoPtCrossover(Bitsprayer &other);
+    int mutate(int numMuts);
+
+    vector<int> getBitsVec(int len);
 
   private:
     int initInput;
     int numStates;
+    int initState;
     int curState;
+    vector<int> buf;
     vector<vector<int> > transitions;
     vector<vector<vector<int> > > responses;
 };
-
 
 #endif //MEDICALPREDICTOR_BITSPRAYER_H
