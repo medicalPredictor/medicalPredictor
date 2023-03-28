@@ -3,7 +3,6 @@
 #define VERBOSE true
 
 Bitsprayer::Bitsprayer() {
-
     initInput = -1;
     numStates = -1;
     initState = -1;
@@ -14,7 +13,6 @@ Bitsprayer::Bitsprayer() {
 }
 
 Bitsprayer::Bitsprayer(int states) {
-
     initInput = -1;
     numStates = states;
     initState = -1;
