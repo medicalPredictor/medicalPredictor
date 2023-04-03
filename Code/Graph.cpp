@@ -1,4 +1,21 @@
 #include "Graph.h"
+//#include "CovidModeler.h"
+
+void printVector1(vector<int> vec) {
+    for (int y = 0; y < vec.size(); y++) {
+        cout << vec[y] << " ";
+    }
+    cout << "\n";
+    //return (0);
+}
+
+void printVector1(vector<double> vec) {
+    for (int y = 0; y < vec.size(); y++) {
+        cout << vec[y] << " ";
+    }
+    cout << "\n";
+    //return (0);
+}
 
 /**
  * Initializes a graph object with the following settings.
@@ -372,10 +389,14 @@ vector<double> Graph::infectionProb(vector<int> Ac, int variant) {
         extra2[x] = 1 - exp(extra2[x]);
     }
 
+    // for (int x = 0; x < Ac.size(); x++) {
+//         probs.push_back(extra2[x] * extra[x]);
+//     }
     for (int x = 0; x < Ac.size(); x++) {
-        probs.push_back(extra2[x] * extra[x]);
+        probs.push_back(extra2[x] * 1.0);
     }
-
+	
+	//printVector1(probs);
     return (probs);
 }
 
@@ -396,13 +417,17 @@ vector<int> Graph::calcAc(int variant) {
         }
     }
     int a;
+	//int sum = 0;
     for (int x = 0; x < nn; x++) {
         a = 0;
         for (int y = 0; y < nn; y++) {
             a = a + (adj[x][y] * mask[y]);
         }
         Ac.push_back(a);
+		//sum = sum + a;
     }
+	//printVector1(Ac);
+	//cout << sum << "\n";
     return (Ac);
 }
 
@@ -431,11 +456,12 @@ int Graph::runInfections(vector<int> new1, int variant) {
  * @return          If the program completes successfully, returns 0.
  */
 int Graph::recoveries() {
-    double randVar = 0;
+    double  randVar = 0;
     for (int x = 0; x < state.size(); x++) {
         if (state[x] >= 1) {
-            randVar = (rand() % 100) / 100.0;
-            if (randVar < recProb) {
+             //randVar = ( drand48() % 100) / 100.0;
+			randVar = drand48();
+            if ( randVar < recProb) {
                 unInfect(x);
             }
         }
@@ -471,19 +497,21 @@ int Graph::death(int node) {
  * @return          If the program completes successfully, returns 0.
  */
 int Graph::ImmunityDecay() {
-    double rand1 = 0.0;
+    double  rand1 = 0.0;
     for (int x = 0; x < nn; x++) {
         if ((!variantHistory[x].empty()) && (state[x] != -2)) {
             if (variantHistory[x][0] != state[x]) {
-                rand1 = (rand() % 100) / 100.0;
-                if (rand1 < decProb) {
+                 //rand1 = (drand48() % 100) / 100.0;
+				rand1 = drand48();
+                if ( rand1 < decProb) {
                     removeImmunity(x);
                 }
             }
         }
 //        {
-//            rand1 = (rand() % 100) / 100.0;
-//            if (rand1 < decProb) {
+//             rand1 = ( drand48() % 100) / 100.0;
+//		 	   rand1 = drand48();
+//            if ( rand1 < decProb) {
 //                removeImmunity(x);
 //            }
 //        }
@@ -499,12 +527,13 @@ int Graph::ImmunityDecay() {
  */
 vector<int> Graph::runVariant(int variant) {
     vector<int> newInfections;
-    double rands = 0.0;
+    double  rands = 0.0;
     vector<int> Ac = calcAc(variant);
     vector<double> infectProb = infectionProb(Ac, variant);
     for (int x = 0; x < nn; x++) {
-        rands = (rand() % 100) / 100.0;
-        if (rands < infectProb[x]) {
+         //rands = ( drand48() % 100) / 100.0;
+		rands = drand48();
+        if ( rands < infectProb[x]) {
             newInfections.push_back(1);
         } else {
             newInfections.push_back(0);
@@ -566,10 +595,10 @@ int Graph::newVariant(vector<int> bits) {
         holder.push_back(bits[x]);
     }
     VariantDic.push_back(holder);
-    int node = rand() % nn;
+    int node =  rand() % nn;
     worked = infect(node, VariantDic.size() - 1);
     while (worked == 1) {
-        node = rand() % nn;
+        node =  rand() % nn;
         worked = infect(node, VariantDic.size() - 1);
         counter++;
         if (counter > nn) {
@@ -586,11 +615,12 @@ int Graph::newVariant(vector<int> bits) {
  * @return
  */
 void Graph::kill() {
-    double rands = 0.0;
+    double  rands = 0.0;
     for (int x = 0; x < nn; x++) {
         if (state[x] > 0) {
-            rands = (rand() % 100) / 100.0;
-            if (rands < deathProb) {
+             //rands = ( drand48() % 100) / 100.0;
+			rands = drand48();
+            if ( rands < deathProb) {
                 death(x);
             }
         }
