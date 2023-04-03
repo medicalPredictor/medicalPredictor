@@ -16,53 +16,29 @@ public:
                    deathProb1);
 
     int addVariant(vector<int> bits, int len);
-
     int printVariantList();
-
     int printImmunityList();
-
     int printVariantHistory();
-
     int infect(int node, int variant);
-
     vector<int> getState();
-
     int unInfect(int node);
-
     int removeImmunity(int node);
-
     vector<double> infectionProb(vector<int> Ac, int variant);
-
     vector<int> calcAc(int variant);
-
     int runInfections(vector<int> new1, int variant);
-
     int recoveries();
-
     int death(int node);
-
     int ImmunityDecay();
-
     vector<int> getInfected();
-
     vector<vector<int> > getCurrentVariantHistory();
-
     int deathCount();
-
     int lifeCount();
-
     vector<int> runVariant(int variant);
-
     int updateInfected();
-
     void printAdj();
-
     int newVariant(vector<int> bits);
-
     void kill();
-
     vector<int> nextTimeStep();
-
     int numOfVariants();
 
 private:

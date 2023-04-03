@@ -4,6 +4,7 @@
 int main() {
     vector<vector<int> > All_the_simulations;
     int sims = 1000;
+    All_the_simulations.reserve(sims);
     for (int y = 0; y < sims; y++) {
         All_the_simulations.push_back(simulation());
     }

@@ -15,7 +15,7 @@ from statistics import mean
 
 from typing import List
 
-alpha = 1
+alpha = 0.01
 
 
 def infected(sick: int):
@@ -43,6 +43,10 @@ def fitness_bare(adj_lists: List[List[int]], nodes: int, p0):
             if n_state[n] == 1:
                 for nei in temp_list[n]:
                     inf_neighbours[nei] += 1
+                    pass
+                pass
+            pass
+        thing = []
         for n in range(nodes):
             if n_state[n] == 0 and inf_neighbours[n] > 0:
                 if infected(inf_neighbours[n]):
@@ -66,7 +70,7 @@ def fitness_bare(adj_lists: List[List[int]], nodes: int, p0):
 def make_prof(adj_lists: List[List[int]], nodes: int, p0):
     logs = []
     most = -1
-    for _ in range(1000):
+    for _ in range(10000):
         prof = fitness_bare(adj_lists, nodes, p0)[0]
         logs.append(prof)
         if len(prof) > most:
@@ -84,52 +88,65 @@ def make_prof(adj_lists: List[List[int]], nodes: int, p0):
         pass
 
     for idx in range(most):
-        avg_prof[idx] = avg_prof[idx]/1000
+        avg_prof[idx] = avg_prof[idx]/10000
         pass
 
     return avg_prof
 
 
 def main():
-    file = "../bs_test.txt"
-    adj = [[0 for _ in range(256)] for _ in range(256)]
-    edges = 0
-    # tot_weight = 0
-    # weight_cnt = [0 for _ in range(5)]
-    with open(file, 'r') as f:
-        lines = f.readlines()
-        line = lines[0].rstrip('\n').split('\t')
-        cnt = 0
-        for row in range(256):
-            for col in range(row+1, 256):
-                adj[row][col] = int(line[cnt])
-                adj[col][row] = int(line[cnt])
-                cnt += 1
-                pass
+    hist = [0 for _ in range(100)]
+    for _ in range(10):
+        sum=0
+        for _ in range(10000):
+            val = (random.randint(0, 50000) % 100)/100
+            sum += val
+            hist[int(val * 100)] += 1
             pass
-        pass
-
-    lists = []
-    for row in range(256):
-        li = []
-        for col in range(256):
-            if adj[row][col] == 1:
-                li.append(col)
-                pass
-            pass
-        lists.append(li)
-        pass
-
-    avg_prof = make_prof(lists, 256, 0)
-    with open("BaseSIRResults.txt", "w") as f:
-        print(avg_prof)
-        for val in avg_prof:
-            if val > 0:
-                print(val)
-                f.write(str(val) + "\n")
-                pass
-            pass
-        pass
+        print(sum/10000)
+    print(hist)
+    print(min(hist))
+    print(max(hist))
+    print(hist.index(max(hist))/100)
+    # file = "./bs_test.txt"
+    # adj = [[0 for _ in range(256)] for _ in range(256)]
+    # edges = 0
+    # # tot_weight = 0
+    # # weight_cnt = [0 for _ in range(5)]
+    # with open(file, 'r') as f:
+    #     lines = f.readlines()
+    #     line = lines[0].rstrip('\n').split('\t')
+    #     cnt = 0
+    #     for row in range(256):
+    #         for col in range(row+1, 256):
+    #             adj[row][col] = int(line[cnt])
+    #             adj[col][row] = int(line[cnt])
+    #             cnt += 1
+    #             pass
+    #         pass
+    #     pass
+    #
+    # lists = []
+    # for row in range(256):
+    #     li = []
+    #     for col in range(256):
+    #         if adj[row][col] == 1:
+    #             li.append(col)
+    #             pass
+    #         pass
+    #     lists.append(li)
+    #     pass
+    #
+    # avg_prof = make_prof(lists, 256, 0)
+    # with open("BaseSIRResults.txt", "w") as f:
+    #     print(avg_prof)
+    #     for val in avg_prof:
+    #         if val > 0:
+    #             print(val)
+    #             f.write(str(val) + "\n")
+    #             pass
+    #         pass
+    #     pass
 
 
     # lists = []
