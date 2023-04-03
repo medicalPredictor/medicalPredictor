@@ -81,6 +81,7 @@ int Bitsprayer::randomize() {
             responses.at(s).at(t) = oneResponse;
         }
     }
+	return(0);
 }
 
 int Bitsprayer::copy(Bitsprayer &other) {
@@ -92,6 +93,7 @@ int Bitsprayer::copy(Bitsprayer &other) {
     transitions = other.transitions;
     responses = other.responses;
     if (VERBOSE) cout << "Bitsprayer Copied" << endl;
+	return(0);
 }
 
 int Bitsprayer::print() {
