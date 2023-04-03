@@ -1,79 +1,10 @@
-#include <cmath>
-#include <list>
-#include <sstream>
-#include <vector>
-#include <iostream>
-#include <time.h>
-#include <fstream>
-
-using namespace std;
-
-void ReadData(string input1, std::vector<int> *listOfPoints, int linesize);
-void tokenize(std::string const str, const char delim, std::vector<int> *out);
-void writeToFile(vector<int> data, string filename);
-vector<int> simulation();
-
-
-class Graph {
-  public:
-    // functions go here
-    int initialize(int nn1, vector<int> bitspray, int immunityStringSize, vector<int> bitspray2, double alpha1, double recProb1, double decProb1, double
-    deathProb1);
-    int addVariant(vector<int> bits, int len);
-    int printVariantList();
-    int printImmunityList();
-    int printVariantHistory();
-    int infect(int node, int variant);
-    vector<int> getState();
-    int unInfect(int node);
-    int removeImmunity(int node);
-    vector<double> infectionProb(vector<int> Ac, int variant);
-    vector<int> calcAc(int variant);
-    int runInfections(vector<int> new1, int variant);
-    int recoveries();
-    int death(int node);
-    int ImmunityDecay();
-    vector<int> getInfected();
-    vector<vector<int> > getCurrentVariantHistory();
-    int deathCount();
-    int lifeCount();
-    vector<int> runVariant(int variant);
-    int updateInfected();
-    void printAdj();
-    int newVariant(vector<int> bits);
-    void kill();
-    vector<int> nextTimeStep();
-    int numOfVariants();
-  private:
-    //Variables go here
-    double alpha;       // The likelihood of passing on an infection along one edge
-    double recProb;     // Daily likelihood of recovering (while infected)
-    double decProb;     // Daily likelihood of losing immunity (state -1 or 0)
-    double deathProb;   // Daily likelihood of dying (while infected)
-    vector<vector<int> > adj;  // Adjacency matrix
-    int nn; // Number of nodes
-    int immunitySize; // Size of the immunity and variant string
-    // state[n] = >0: variant index + 1 n is infected with, 0: susceptible w no immunity, -1: has immunity to
-    // something, -2: dead
-    vector<int> state;
-    // infected[n] = 1: n is currently infected, 0: n is currently not infected
-    vector<int> infected;
-    // variantDic[n] = {a record of all the variants generated since the start of the epi, the oldest first}
-    vector<vector<int> > VariantDic;
-    // immunityDic[n] = {n's current immunity string where >1 means immunity and 0 means susceptible}
-    vector<vector<int> > immunityDic;
-    // variantHistory[n] = {queue of variants indices + 1 n has been infected with and still has immunity to, the
-    // oldest first}
-    vector<vector<int> > variantHistory;
-    int deathcount; // Total deaths during epi
-    double calcExtra(vector<int> Ac, int x, int totalBits, int variant);
-};
+#include "Graph.h"
 
 /**
  * Initializes a graph object with the following settings.
  *
  * @param nn1  Number of nodes. (int)
- * @param bitspray  Vector of integers representing the adjacency matrix of the graph. 
+ * @param bitspray  Vector of integers representing the adjacency matrix of the graph.
  * @param immunityStringSize  Length of the immunity string. (int)
  * @param bitspray2  Vector of integers representing the first variants immunity string.
  * @param alpha1  Base probability of infection.
@@ -142,10 +73,50 @@ deathProb1) {
 }
 
 /**
+ * Returns the current number of variants in the simulation
+ *
+ * @return         Integer representing the total number of variants currently in the simulation.
+ */
+int Graph::numOfVariants() {
+    return (VariantDic.size());
+}
+
+/**
+ * Updates the Graph object for the next timestep, and returns the number of currently infected nodes, the number of cumulative deaths, and number of currently alive nodes.
+ *
+ * @return       A vector conatining: the number of currently infected nodes, the number of cumulative deaths, and number of currently alive nodes.
+ */
+vector<int> Graph::nextTimeStep() {
+    //cout << "Inside nextTimeStep\n";
+    vector<int> stats;
+    int deaths = 0;
+    int life = 0;
+    vector<int> infected;
+    int sumInf = 0;
+    updateInfected();
+    //cout << "infected updated\n";
+    infected = getInfected();
+    //cout << "infected aquired\n";
+    //printVector(infected);
+    for (int x = 0; x < infected.size(); x++) {
+        sumInf += infected[x];
+    }
+
+    deaths = deathCount();
+    life = lifeCount();
+
+    stats.push_back(sumInf);
+    stats.push_back(deaths);
+    stats.push_back(life);
+
+    return (stats);
+}
+
+/**
  * Adds a new variant to the simulation.
  *
  * @param bits  Integer vector representing the immunity string for the new variant.
- * @param len  Length of immunity string. 
+ * @param len  Length of immunity string.
  * @return          If the program completes successfully, returns 0.
  */
 int Graph::addVariant(vector<int> bits, int len) // TODO: Remove len
@@ -207,37 +178,9 @@ int Graph::printVariantHistory() {
 }
 
 /**
- * Prints an integer vector. Mostly for debugging purposes. 
- *
- * @param vec  A vector of intergers of any length.
- * @return          If the program completes successfully, returns 0.
- */
-int printVector(vector<int> vec) {
-    for (int y = 0; y < vec.size(); y++) {
-        cout << vec[y] << " ";
-    }
-    cout << "\n";
-    return (0);
-}
-
-/**
- * Prints a vector of doubles. Mostly for debugging purposes. 
- *
- * @param vec  A vector of doubles of any length.
- * @return          If the program completes successfully, returns 0.
- */
-int printVector(vector<double> vec) {
-    for (int y = 0; y < vec.size(); y++) {
-        cout << vec[y] << " ";
-    }
-    cout << "\n";
-    return (0);
-}
-
-/**
  * Returns a copy of the state vector. This is to ensure encapsulation of the information, and guarantee internal consistancy of the object.
  *
- * @return          A copy of the state vector. 
+ * @return          A copy of the state vector.
  */
 vector<int> Graph::getState() {
     return (state);
@@ -264,7 +207,7 @@ vector<vector<int> > Graph::getCurrentVariantHistory() {
 /**
  * Returns the current death total of the simulation. This is to ensure encapsulation of the information, and guarantee internal consistancy of the object.
  *
- * @return          Current death count of the simulation. 
+ * @return          Current death count of the simulation.
  */
 int Graph::deathCount() {
     return (deathcount);
@@ -339,7 +282,7 @@ int Graph::unInfect(int node) {
 /**
  * Removes immunity from passed node. Checks if the node dead, or if the node has immunity to lose before updating. Variant history, immunity string and state updated to reflect new information.
  *
- * @param node  Index representing node to be updated. 
+ * @param node  Index representing node to be updated.
  * @return          If the program completes successfully, returns 0.
  */
 int Graph::removeImmunity(int node) {
@@ -364,7 +307,7 @@ int Graph::removeImmunity(int node) {
 }
 
 /**
- * Additional calculation to include immunity string into probability of infection. 
+ * Additional calculation to include immunity string into probability of infection.
  *
  * @param Ac  Integer vector representing the number of neighbours each node has that is infected with the variant passed.
  * @param x  index of node involved in the calculation.
@@ -551,7 +494,7 @@ int Graph::ImmunityDecay() {
 /**
  * Given a variant, calculate the infection probability for each node, and return a vector indicating which nodes will be infected with that variant this timestep.
  *
- * @param variant   index of variant in VariantDic. 
+ * @param variant   index of variant in VariantDic.
  * @return          Vector of integers representing which nodes are to be infected with the passed variant during the current timestep.
  */
 vector<int> Graph::runVariant(int variant) {
@@ -659,386 +602,3 @@ void Graph::kill() {
 //        }
 //    }
 }
-
-/**
- * Debugging Tests.
- *
- * @return          If the program completes successfully, returns 0.
- */
-int tests() {
-    srand((int) time(NULL));
-    Graph a;
-    int bits1[] =
-        {0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1,
-         0, 0, 1, 0, 1, 0};
-    vector<int> bits;
-    std::copy(std::begin(bits1), std::end(bits1), std::back_inserter(bits));
-
-    cout << "bitstring length: " << bits.size() << "\n";
-    a.initialize(10, bits, 4, bits, 0.63, 0.125514, 0.00666641798664, 0.00168214);
-    //a.initialize(5, bits, 4, bits, 0.63, 0.125514, 0.5);
-    a.infect(0, 0);
-    vector<int> cState = a.getState();
-    printVector(cState);
-
-    a.infect(1, 0);
-    cState = a.getState();
-    printVector(cState);
-
-    a.infect(4, 0);
-    cState = a.getState();
-    printVector(cState);
-
-    a.unInfect(0);
-    cState = a.getState();
-    printVector(cState);
-
-    cout << "removing immnity\n";
-
-    a.removeImmunity(0);
-    cState = a.getState();
-    printVector(cState);
-
-    vector<int> Ac = a.calcAc(0);
-    printVector(Ac);
-    vector<double> probs = a.infectionProb(Ac, 0);
-    printVector(probs);
-
-    vector<int> newInfections;
-
-    for (int x = 0; x < probs.size(); x++) {
-        if (probs[x] > 0) {
-            newInfections.push_back(1);
-        } else {
-            newInfections.push_back(0);
-        }
-    }
-    cout << "NewInfections: ";
-    printVector(newInfections);
-
-    a.runInfections(newInfections, 0);
-    cState = a.getState();
-    printVector(cState);
-
-    a.recoveries();
-    cState = a.getState();
-    printVector(cState);
-
-    cout << "killing 4\n";
-    a.death(4);
-    cState = a.getState();
-    printVector(cState);
-
-    a.unInfect(1);
-    cState = a.getState();
-    printVector(cState);
-
-    a.ImmunityDecay();
-    cState = a.getState();
-    printVector(cState);
-
-    a.infect(2, 0);
-    cState = a.getState();
-    printVector(cState);
-
-    newInfections.clear();
-
-    newInfections = a.runVariant(0);
-    cState = a.getState();
-    printVector(cState);
-
-    a.runInfections(newInfections, 0);
-    cState = a.getState();
-    printVector(cState);
-
-    a.unInfect(0);
-    cState = a.getState();
-    printVector(cState);
-
-    a.removeImmunity(0);
-    cState = a.getState();
-    printVector(cState);
-
-    a.updateInfected();
-    cState = a.getState();
-    printVector(cState);
-
-    a.printAdj();
-
-    int bits2[] = {1, 0, 0, 1, 1, 1};
-    std::copy(std::begin(bits2), std::end(bits2), std::back_inserter(bits));
-
-    a.newVariant(bits);
-    cState = a.getState();
-    printVector(cState);
-
-    return (0);
-}
-
-/**
- * Updates the Graph object for the next timestep, and returns the number of currently infected nodes, the number of cumulative deaths, and number of currently alive nodes.
- *
- * @return       A vector conatining: the number of currently infected nodes, the number of cumulative deaths, and number of currently alive nodes.
- */
-vector<int> Graph::nextTimeStep() {
-    //cout << "Inside nextTimeStep\n";
-    vector<int> stats;
-    int deaths = 0;
-    int life = 0;
-    vector<int> infected;
-    int sumInf = 0;
-    updateInfected();
-    //cout << "infected updated\n";
-    infected = getInfected();
-    //cout << "infected aquired\n";
-    //printVector(infected);
-    for (int x = 0; x < infected.size(); x++) {
-        sumInf += infected[x];
-    }
-
-    deaths = deathCount();
-    life = lifeCount();
-
-    stats.push_back(sumInf);
-    stats.push_back(deaths);
-    stats.push_back(life);
-
-    return (stats);
-}
-
-
-
-/**
- * Given given a bitstring, start at a random location in the string, and extract a bitstring of length length to use as the next immunity string for a new variant.
- *
- * @param bits  Integer vector of zeros and ones. Can be of any length greater than varianble length.
- * @param length  Length of immunity string. 
- * @return          If the program completes successfully, returns 0.
- */
-vector<int> makeNewVariant(vector<int> bits, int length) {
-    int rands = rand() % (bits.size() - length);
-    vector<int> output;
-    for (int x = rands; x < rands + length; x++) {
-        output.push_back(bits[x]);
-    }
-    return (output);
-}
-
-/**
- * Returns the current number of variants in the simulation
- *
- * @return         Integer representing the total number of variants currently in the simulation.
- */
-int Graph::numOfVariants() {
-    return (VariantDic.size());
-}
-
-int main()
-{
-    vector < vector < int > > All_the_simulations;
-    int sims = 1000;
-    for(int y = 0; y < sims; y++)
-    {
-        All_the_simulations.push_back(simulation());
-    }
-    //All_the_simulations.push_back(simulation());
-    vector<double> results;
-    for(int x = 0; x < 256; x++)
-    {
-        results.push_back(0.0);
-    }
-
-    for(int x = 0; x < 256; x++)
-    {
-        for(int y = 0; y < sims; y++)
-        {
-            if(All_the_simulations[y].size() > x)
-            {
-                results[x] = results[x] + All_the_simulations[y][x];
-            }
-        }
-    }
-    for(int x = 0; x < 256; x++)
-    {
-        results[x] = double(results[x])/sims;
-    }
-
-    ofstream vals;
-    vals.open("./CovidModellerResults.txt", ios::out);
-    for (auto& val: results){
-        if (val>0){
-            cout<<val<<endl;
-            vals<<val<<endl;
-        }
-    }
-    vals.close();
-}
-
-/**
- * Main used to testing purposes. Can be removed later. 
- *
- * @return          If the program completes successfully, returns 0.
- */
-vector <int> simulation() {
-    //vector< vector < int > All_the_simulations;
-
-    //tests();
-    int newVariantsFlag = 0;
-    srand((int) time(NULL));
-    std::vector<int> listOfPoints;
-    ReadData("./bs_test.txt", &listOfPoints, 100000);
-
-    //cout << "Here\n";
-//    printVector(listOfPoints);
-
-    vector<int> infectedLog;
-    vector<int> deathLog;
-    vector<int> lifeLog;
-
-    int immunityLength = 7;
-
-    //cout << "HERE1" << endl;
-
-    Graph a;
-//    a.initialize(256, listOfPoints, immunityLength, listOfPoints, 0.63, 0.126, 0.006666, 0.00168214);
-    a.initialize(256, listOfPoints, immunityLength, listOfPoints, 1.0, 0.0, 0.0, 1.0);
-    //cout << "HERE1.105" << endl;
-    //a.printAdj();
-    a.infect(0, 0);
-    vector<int> infected;
-    vector<int> states;
-    infected = a.getInfected();
-    printVector(infected);
-    infectedLog.push_back(1);
-    deathLog.push_back(0);
-    lifeLog.push_back(256);
-    cout<<1<<endl;
-
-    int max_timeSteps = 1000;
-    int count = 0;
-    double variantProb = 0.0001;
-
-    //cout << "HERE1.1" << endl;
-
-    vector<int> stats;
-    stats = a.nextTimeStep();
-    int sum = 0;
-    for (auto& val : infectedLog){
-        sum += val;
-    }
-//    printVector(stats);
-//    cout << "HERE1.15" << endl;
-    cout<<stats[0] <<endl;
-//    cout << "HERE1.17" << endl;
-    infectedLog.push_back(stats[0]);
-    deathLog.push_back(stats[1]);
-    lifeLog.push_back(stats[2]);
-    double variantTest = 0.0;
-
-//    cout << "HERE2" << endl;
-
-    std::vector<int> variant2;
-
-    while ((stats[0] > 0) && (stats[0]<256) && (count < max_timeSteps)) {
-        if (newVariantsFlag == 1) {
-            variantTest = (rand() % 100) / 100.0;
-            if (variantTest < variantProb) {
-                cout << "Adding New Variant\n";
-                variant2 = makeNewVariant(listOfPoints, immunityLength);
-                a.newVariant(variant2);
-            }
-        }
-        stats = a.nextTimeStep();
-        sum = 0;
-        for (auto &val: infectedLog) {
-            sum += val;
-        }
-        cout << stats[0]<< endl;
-        //printVector(stats);
-        states = a.getState();
-        //cout << "\n";
-        //printVector(states);
-//        stats = a.nextTimeStep();
-        infectedLog.push_back(stats[0]);
-        deathLog.push_back(stats[1]);
-        lifeLog.push_back(stats[2]);
-        count++;
-    }
-    int final1 = a.numOfVariants();
-    printVector(infectedLog);
-    printVector(deathLog);
-    printVector(lifeLog);
-//    cout << final1 << "\n";
-    writeToFile(infectedLog, "InfectedLog.txt");
-    writeToFile(deathLog, "DeathLog.txt");
-    writeToFile(lifeLog, "LifeLog.txt");
-    return (infectedLog);
-}
-
-/**
- * Reads in a txt file and saves to the vector of ints passed to the function.
- *
- * @param input1  name of file to be imported.
- * @param listOfPoints  pointer to a vector of integers to be populated with the information from the input.
- * @param linesize  Number of characters expected in each line of the input file.
- * @return        
- */
-void ReadData(string input1, std::vector<int> *listOfPoints, int linesize) {//read in the data
-
-    fstream input;
-    char buf1[linesize];
-    string buf2;
-    string line;
-
-    string inputFile = input1;
-
-    std::vector<int> out;
-    input.open(inputFile, ios::in);
-    input.getline(buf1, linesize); //Get first line
-    line = buf1;
-    tokenize(line, '\t', &out);
-    (*listOfPoints) = out;
-    input.close();
-}
-
-/**
- * Takes a string of characters and delimits them by the passed delimiter. 
- *
- * @param str  string to be delimited.
- * @param delim  character representing the delimiter to be used to break up the string.
- * @param out pointer to a vector of ints that will be populated by the delimited string information.
- * @return      
- */
-void tokenize(std::string const str, const char delim, std::vector<int> *out) {
-    std::stringstream ss(str);
-    std::string s;
-    std::vector<string> temp;
-    while (std::getline(ss, s, delim)) {
-        temp.push_back(s);
-    }
-
-    std::vector<string>::iterator it;
-    for (it = temp.begin(); it != temp.end(); ++it) {
-        out->push_back(stod(*it));
-    }
-}
-
-/**
- * Given a vector of ints, and a filename, write the values in the vector to the file, one int per line.
- *
- * @param a  vector of integers to be written to file.
- * @param filename  string representing the file to be written to. Anything in the file before will be overwritten.
- * @return    
- */
-void writeToFile(vector<int> a, string filename) {
-    fstream aus;  //output file
-    aus.open(filename, ios::out);
-    aus.precision(10);
-
-    for (int i = 0; i < a.size(); i++) {
-        aus << a[i] << "\n";
-    }
-    aus.close();
-}
-
-// TODO: Defensive library.
