@@ -113,7 +113,6 @@ vector<float> aggregator(const vector<tuple<int, int, int> > &tdims, vector<floa
  *
  * @return
  */
-
 int main() {
     vector<float> v1 = {1, 2, 3};
     vector<float> v2 = {3, 4, 7};

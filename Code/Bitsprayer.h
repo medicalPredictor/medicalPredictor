@@ -3,7 +3,7 @@
 #include <sstream>
 #include <vector>
 #include <iostream>
-#include <time.h>
+#include <ctime>
 #include <fstream>
 
 #define VERBOSE true
@@ -15,21 +15,13 @@ public:
     Bitsprayer(int states);      //create a bitspray with buffer S states
     Bitsprayer(Bitsprayer &other);  //copy constructor
     ~Bitsprayer();                //destructor
-
     int create(int states);
-
     int randomize();
-
     int copy(Bitsprayer &other);
-
     int print();
-
     static int destroy();
-
     int twoPtCrossover(Bitsprayer &other);
-
     int mutate(int numMuts);
-
     vector<int> getBitsVec(int len);
 
 private:
