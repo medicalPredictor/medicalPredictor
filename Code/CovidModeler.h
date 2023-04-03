@@ -4,6 +4,7 @@ void ReadData(string input1, std::vector<int> *listOfPoints, int linesize);
 void tokenize(std::string const str, const char delim, std::vector<int> *out);
 void writeToFile(vector<int> data, string filename);
 vector<int> simulation();
+int printVector(vector<int> vec);
 
 /**
  * Prints an integer vector. Mostly for debugging purposes.

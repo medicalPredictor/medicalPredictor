@@ -3,8 +3,7 @@
 
 int main() {
     vector<vector<int> > All_the_simulations;
-    int sims = 1000;
-    All_the_simulations.reserve(sims);
+    int sims = 10000;
     for (int y = 0; y < sims; y++) {
         All_the_simulations.push_back(simulation());
     }
@@ -160,7 +159,8 @@ int tests() {
  * @return          If the program completes successfully, returns 0.
  */
 vector<int> makeNewVariant(vector<int> bits, int length) {
-    int rands = rand() % (bits.size() - length);
+    int rands = rand()%(bits.size() - length);
+	//int rands = 1;
     vector<int> output;
     for (int x = rands; x < rands + length; x++) {
         output.push_back(bits[x]);
@@ -178,9 +178,10 @@ vector<int> simulation() {
 
     //tests();
     int newVariantsFlag = 0;
-    srand((int) time(NULL));
+    srand48((int) time(NULL));
+	srand((int) time(NULL));
     std::vector<int> listOfPoints;
-    ReadData("./bs_test.txt", &listOfPoints, 100000);
+    ReadData("../bs_test.txt", &listOfPoints, 100000);
 
     //cout << "Here\n";
 //    printVector(listOfPoints);
@@ -194,19 +195,19 @@ vector<int> simulation() {
     //cout << "HERE1" << endl;
 
     Graph a;
-//    a.initialize(256, listOfPoints, immunityLength, listOfPoints, 0.63, 0.126, 0.006666, 0.00168214);
-    a.initialize(256, listOfPoints, immunityLength, listOfPoints, 1.0, 0.0, 0.0, 1.0);
+	//a.initialize(256, listOfPoints, immunityLength, listOfPoints, 0.63, 0.126, 0.006666, 0.00168214);
+    a.initialize(256, listOfPoints, immunityLength, listOfPoints, 0.63, 0.0, 0.0, 0.00168214);
     //cout << "HERE1.105" << endl;
     //a.printAdj();
     a.infect(0, 0);
     vector<int> infected;
     vector<int> states;
     infected = a.getInfected();
-    printVector(infected);
+    //printVector(infected);
     infectedLog.push_back(1);
     deathLog.push_back(0);
     lifeLog.push_back(256);
-    cout << 1 << endl;
+    //cout << 1 << endl;
 
     int max_timeSteps = 1000;
     int count = 0;
@@ -222,7 +223,7 @@ vector<int> simulation() {
     }
 //    printVector(stats);
 //    cout << "HERE1.15" << endl;
-    cout << stats[0] << endl;
+    //cout << stats[0] << endl;
 //    cout << "HERE1.17" << endl;
     infectedLog.push_back(stats[0]);
     deathLog.push_back(stats[1]);
@@ -235,7 +236,7 @@ vector<int> simulation() {
 
     while ((stats[0] > 0) && (stats[0] < 256) && (count < max_timeSteps)) {
         if (newVariantsFlag == 1) {
-            variantTest = (rand() % 100) / 100.0;
+            variantTest = drand48();
             if (variantTest < variantProb) {
                 cout << "Adding New Variant\n";
                 variant2 = makeNewVariant(listOfPoints, immunityLength);
@@ -247,7 +248,7 @@ vector<int> simulation() {
         for (auto &val: infectedLog) {
             sum += val;
         }
-        cout << stats[0] << endl;
+        //cout << stats[0] << endl;
         //printVector(stats);
         states = a.getState();
         //cout << "\n";
@@ -259,13 +260,13 @@ vector<int> simulation() {
         count++;
     }
     int final1 = a.numOfVariants();
-    printVector(infectedLog);
-    printVector(deathLog);
-    printVector(lifeLog);
+   // printVector(infectedLog);
+    //printVector(deathLog);
+   // printVector(lifeLog);
 //    cout << final1 << "\n";
-    writeToFile(infectedLog, "InfectedLog.txt");
-    writeToFile(deathLog, "DeathLog.txt");
-    writeToFile(lifeLog, "LifeLog.txt");
+	//writeToFile(infectedLog, "InfectedLog.txt");
+    //writeToFile(deathLog, "DeathLog.txt");
+    //writeToFile(lifeLog, "LifeLog.txt");
     return (infectedLog);
 }
 
