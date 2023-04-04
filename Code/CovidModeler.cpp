@@ -199,7 +199,7 @@ vector<int> simulation() {
 
     Graph a;
 	//a.initialize(256, listOfPoints, immunityLength, listOfPoints, 0.63, 0.126, 0.006666, 0.00168214);
-    a.initialize(256, listOfPoints, immunityLength, listOfPoints, 0.01, 0.0, 0.0, 0.0);
+    a.initialize(256, listOfPoints, immunityLength, listOfPoints, 0.01, 0.0, 0.0, 1.0);
     //cout << "HERE1.105" << endl;
     //a.printAdj();
     a.infect(0, 0);
