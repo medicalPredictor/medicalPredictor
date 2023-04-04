@@ -632,7 +632,7 @@ void Graph::kill() {
         if (state[x] > 0) {
              //rands = ( drand48() % 100) / 100.0;
 			rands = drand48();
-            rands = -1;
+            //rands = -1;
             if ( rands < deathProb) {
                 death(x);
             }
