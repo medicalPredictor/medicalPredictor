@@ -1,21 +1,5 @@
+#include <iostream>
 #include "Graph.h"
-//#include "CovidModeler.h"
-
-void printVector1(vector<int> vec) {
-    for (int y = 0; y < vec.size(); y++) {
-        cout << vec[y] << " ";
-    }
-    cout << "\n";
-    //return (0);
-}
-
-void printVector1(vector<double> vec) {
-    for (int y = 0; y < vec.size(); y++) {
-        cout << vec[y] << " ";
-    }
-    cout << "\n";
-    //return (0);
-}
 
 /**
  * Initializes a graph object with the following settings.
@@ -88,6 +72,33 @@ deathProb1) {
 
     return (0);
 }
+
+int Graph::simulateEpidemic(double infProb, double recoveryProb, double decayProb, double dieProb){
+    // TODO: Incomplete, so complete it!
+    vector<int> listOfBits;
+    vector<int> curS, curI, curR, newS, newI, netNewI, newR;
+
+    infect(0,0);
+    curS.push_back(nn - 1);
+    newS.push_back(-1);
+    curI.push_back(1);
+    newI.push_back(1);
+    netNewI.push_back(1);
+    curR.push_back(0);
+    newR.push_back(0);
+
+    vector<int> dailyStats = nextTimeStep();
+//    newS.push_back(curS.end() - )
+    curS.push_back(nn - dailyStats[1] - dailyStats[2]); // Susceptible = total - infected - dead
+//    newI.push_back(curI.back() - dailyStats[0]); // New Infected (dead) = old removed - current removed
+
+curI.push_back(dailyStats[1]); // Currently Infected
+    newR.push_back(curR.back() - dailyStats[2]); // New Removed (dead) = old removed - current removed
+    curR.push_back(dailyStats[2]); // Currently Removed (dead)
+
+    return(0);
+}
+
 
 /**
  * Returns the current number of variants in the simulation
@@ -620,6 +631,7 @@ void Graph::kill() {
         if (state[x] > 0) {
              //rands = ( drand48() % 100) / 100.0;
 			rands = drand48();
+            rands = -1;
             if ( rands < deathProb) {
                 death(x);
             }

@@ -41,6 +41,8 @@ public:
     vector<int> nextTimeStep();
     int numOfVariants();
 
+    int simulateEpidemic(double alpha, double recoveryProb, double decayProb, double deathProb);
+
 private:
     //Variables go here
     double alpha;       // The likelihood of passing on an infection along one edge

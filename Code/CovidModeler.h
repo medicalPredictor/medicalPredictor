@@ -1,4 +1,13 @@
-#include "Graph.h"
+#include <cmath>
+#include <list>
+#include <sstream>
+#include <vector>
+#include <iostream>
+#include <time.h>
+#include <fstream>
+#include <cstdlib>
+
+using namespace std;
 
 void ReadData(string input1, std::vector<int> *listOfPoints, int linesize);
 void tokenize(std::string const str, const char delim, std::vector<int> *out);

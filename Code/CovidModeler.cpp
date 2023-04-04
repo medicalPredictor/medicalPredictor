@@ -1,9 +1,12 @@
 #include <iostream>
 #include "CovidModeler.h"
+#include "Graph.h"
 
 int main() {
+    srand48((int) time(nullptr));
+	srand((int) time(nullptr));
     vector<vector<int> > All_the_simulations;
-    int sims = 10000;
+    int sims = 1000;
     for (int y = 0; y < sims; y++) {
         All_the_simulations.push_back(simulation());
     }
@@ -178,8 +181,8 @@ vector<int> simulation() {
 
     //tests();
     int newVariantsFlag = 0;
-    srand48((int) time(NULL));
-	srand((int) time(NULL));
+//    srand48((int) time(NULL));
+//	srand((int) time(NULL));
     std::vector<int> listOfPoints;
     ReadData("../bs_test.txt", &listOfPoints, 100000);
 
@@ -196,7 +199,7 @@ vector<int> simulation() {
 
     Graph a;
 	//a.initialize(256, listOfPoints, immunityLength, listOfPoints, 0.63, 0.126, 0.006666, 0.00168214);
-    a.initialize(256, listOfPoints, immunityLength, listOfPoints, 0.63, 0.0, 0.0, 0.00168214);
+    a.initialize(256, listOfPoints, immunityLength, listOfPoints, 0.01, 0.0, 0.0, 0.0);
     //cout << "HERE1.105" << endl;
     //a.printAdj();
     a.infect(0, 0);
@@ -254,7 +257,9 @@ vector<int> simulation() {
         //cout << "\n";
         //printVector(states);
 //        stats = a.nextTimeStep();
+
         infectedLog.push_back(stats[0]);
+        printVector(infectedLog);
         deathLog.push_back(stats[1]);
         lifeLog.push_back(stats[2]);
         count++;
@@ -312,9 +317,10 @@ void tokenize(std::string const str, const char delim, std::vector<int> *out) {
         temp.push_back(s);
     }
 
-    std::vector<string>::iterator it;
-    for (it = temp.begin(); it != temp.end(); ++it) {
-        out->push_back(stod(*it));
+//    std::vector<string>::iterator it;
+    for (int i= 0; i < temp.size(); ++i) {
+        int num = atoi(temp.at(i).c_str());
+        out->push_back(num);
     }
 }
 
