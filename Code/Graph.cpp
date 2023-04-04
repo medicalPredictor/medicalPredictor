@@ -69,6 +69,7 @@ deathProb1) {
     }
 
     deathcount = 0;
+    newInfections=1;
 
     return (0);
 }
