@@ -4,7 +4,7 @@
 
 int main() {
     srand48((int) time(nullptr));
-	srand((int) time(nullptr));
+    srand((int) time(nullptr));
     vector<vector<int> > All_the_simulations;
     int sims = 1000;
     for (int y = 0; y < sims; y++) {
@@ -47,9 +47,9 @@ int tests() {
     srand((int) time(NULL));
     Graph a;
     int bits1[] =
-            {0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0,
-             1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1,
-             0, 0, 1, 0, 1, 0};
+        {0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0,
+         1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1,
+         0, 0, 1, 0, 1, 0};
     vector<int> bits;
     std::copy(std::begin(bits1), std::end(bits1), std::back_inserter(bits));
 
@@ -162,8 +162,8 @@ int tests() {
  * @return          If the program completes successfully, returns 0.
  */
 vector<int> makeNewVariant(vector<int> bits, int length) {
-    int rands = rand()%(bits.size() - length);
-	//int rands = 1;
+    int rands = rand() % (bits.size() - length);
+    //int rands = 1;
     vector<int> output;
     for (int x = rands; x < rands + length; x++) {
         output.push_back(bits[x]);
@@ -192,13 +192,13 @@ vector<int> simulation() {
     vector<int> infectedLog;
     vector<int> deathLog;
     vector<int> lifeLog;
-
+    vector<int> TotalNewInfectLog;
     int immunityLength = 7;
 
     //cout << "HERE1" << endl;
 
     Graph a;
-	//a.initialize(256, listOfPoints, immunityLength, listOfPoints, 0.63, 0.126, 0.006666, 0.00168214);
+    //a.initialize(256, listOfPoints, immunityLength, listOfPoints, 0.63, 0.126, 0.006666, 0.00168214);
     a.initialize(256, listOfPoints, immunityLength, listOfPoints, 0.01, 0.0, 0.0, 1.0);
     //cout << "HERE1.105" << endl;
     //a.printAdj();
@@ -210,6 +210,7 @@ vector<int> simulation() {
     infectedLog.push_back(1);
     deathLog.push_back(0);
     lifeLog.push_back(256);
+    TotalNewInfectLog.push_back(1);
     //cout << 1 << endl;
 
     int max_timeSteps = 1000;
@@ -231,6 +232,11 @@ vector<int> simulation() {
     infectedLog.push_back(stats[0]);
     deathLog.push_back(stats[1]);
     lifeLog.push_back(stats[2]);
+    sum = 0;
+    for (int x = 3; x < stats.size(); x++) {
+        sum = sum + stats[x];
+    }
+    TotalNewInfectLog.push_back(sum);
     double variantTest = 0.0;
 
 //    cout << "HERE2" << endl;
@@ -262,17 +268,23 @@ vector<int> simulation() {
         printVector(infectedLog);
         deathLog.push_back(stats[1]);
         lifeLog.push_back(stats[2]);
+        sum = 0;
+        for (int x = 3; x < stats.size(); x++) {
+            sum = sum + stats[x];
+        }
+        TotalNewInfectLog.push_back(sum);
+
         count++;
     }
     int final1 = a.numOfVariants();
-   // printVector(infectedLog);
+    // printVector(infectedLog);
     //printVector(deathLog);
-   // printVector(lifeLog);
+    // printVector(lifeLog);
 //    cout << final1 << "\n";
-	//writeToFile(infectedLog, "InfectedLog.txt");
+    //writeToFile(infectedLog, "InfectedLog.txt");
     //writeToFile(deathLog, "DeathLog.txt");
     //writeToFile(lifeLog, "LifeLog.txt");
-    return (infectedLog);
+    return (TotalNewInfectLog);
 }
 
 /**
@@ -318,7 +330,7 @@ void tokenize(std::string const str, const char delim, std::vector<int> *out) {
     }
 
 //    std::vector<string>::iterator it;
-    for (int i= 0; i < temp.size(); ++i) {
+    for (int i = 0; i < temp.size(); ++i) {
         int num = atoi(temp.at(i).c_str());
         out->push_back(num);
     }

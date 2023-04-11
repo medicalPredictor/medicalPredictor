@@ -16,9 +16,9 @@ from statistics import mean
 from typing import List
 
 alpha = 0.01
+immunity_length = 7
 
-
-def infected(sick: int):
+def infected(sick: int, ratio: float):
     if alpha == 1:
         return True
     else:
@@ -28,15 +28,49 @@ def infected(sick: int):
     return False
 
 
-def fitness_bare(adj_lists: List[List[int]], nodes: int, p0):
+def get_variants():
+    variants = []
+    with open("variant.txt") as f:
+        lines = f.readlines()
+        for line in lines:
+            variant = []
+            line = line.rstrip("\n")
+            line = line.split("\t")
+            for val in line:
+                variant.append(int(val))
+                pass
+            variants.append(variant)
+            pass
+        pass
+    return variants
+
+
+def count_mismatches(immunity: [], variant: []):
+    cnt = 0
+    for idx in range(len(immunity)):
+        if variant[idx] == 1 and immunity[idx] == 0:
+            cnt += 1
+            pass
+        pass
+    return cnt
+
+
+def fitness_bare(adj_lists: List[List[int]], nodes: int, p0, varProb: float, deathProb: float, decayProb: float):
     temp_list = copy.deepcopy(adj_lists)
+    var_count = 0
     n_state = [0 for _ in range(nodes)]  # susceptible
+    v_state = [-1 for _ in range(nodes)]
     n_state[p0] = 1
+    v_state[p0] = var_count
     epi_log = [[p0]]
     num_infected = 1
     ttl_infected = 0
     time_step = 0
     length = 0
+    immunity = [[0 for _ in range(immunity_length)] for _ in range(nodes)]
+    variants = get_variants()
+    immunity[0] = variants[var_count]
+    var_count += 1
     while num_infected > 0 and time_step < nodes:
         inf_neighbours = [0 for _ in range(nodes)]
         for n in range(nodes):
@@ -46,11 +80,13 @@ def fitness_bare(adj_lists: List[List[int]], nodes: int, p0):
                     pass
                 pass
             pass
-        thing = []
         for n in range(nodes):
             if n_state[n] == 0 and inf_neighbours[n] > 0:
-                if infected(inf_neighbours[n]):
+                if infected(inf_neighbours[n], count_mismatches(immunity[n], v_state)):
                     n_state[n] = 3
+                    pass
+                pass
+            pass
         ttl_infected += num_infected
         num_infected = 0
         new_inf = []
@@ -70,7 +106,7 @@ def fitness_bare(adj_lists: List[List[int]], nodes: int, p0):
 def make_prof(adj_lists: List[List[int]], nodes: int, p0):
     logs = []
     most = -1
-    for _ in range(10000):
+    for _ in range(1000):
         prof = fitness_bare(adj_lists, nodes, p0)[0]
         logs.append(prof)
         if len(prof) > most:
@@ -88,7 +124,7 @@ def make_prof(adj_lists: List[List[int]], nodes: int, p0):
         pass
 
     for idx in range(most):
-        avg_prof[idx] = avg_prof[idx]/10000
+        avg_prof[idx] = avg_prof[idx]/1000
         pass
 
     return avg_prof
@@ -108,45 +144,45 @@ def main():
     print(min(hist))
     print(max(hist))
     print(hist.index(max(hist))/100)
-    # file = "./bs_test.txt"
-    # adj = [[0 for _ in range(256)] for _ in range(256)]
-    # edges = 0
-    # # tot_weight = 0
-    # # weight_cnt = [0 for _ in range(5)]
-    # with open(file, 'r') as f:
-    #     lines = f.readlines()
-    #     line = lines[0].rstrip('\n').split('\t')
-    #     cnt = 0
-    #     for row in range(256):
-    #         for col in range(row+1, 256):
-    #             adj[row][col] = int(line[cnt])
-    #             adj[col][row] = int(line[cnt])
-    #             cnt += 1
-    #             pass
-    #         pass
-    #     pass
-    #
-    # lists = []
-    # for row in range(256):
-    #     li = []
-    #     for col in range(256):
-    #         if adj[row][col] == 1:
-    #             li.append(col)
-    #             pass
-    #         pass
-    #     lists.append(li)
-    #     pass
-    #
-    # avg_prof = make_prof(lists, 256, 0)
-    # with open("BaseSIRResults.txt", "w") as f:
-    #     print(avg_prof)
-    #     for val in avg_prof:
-    #         if val > 0:
-    #             print(val)
-    #             f.write(str(val) + "\n")
-    #             pass
-    #         pass
-    #     pass
+    file = "./bs_test.txt"
+    adj = [[0 for _ in range(256)] for _ in range(256)]
+    edges = 0
+    # tot_weight = 0
+    # weight_cnt = [0 for _ in range(5)]
+    with open(file, 'r') as f:
+        lines = f.readlines()
+        line = lines[0].rstrip('\n').split('\t')
+        cnt = 0
+        for row in range(256):
+            for col in range(row+1, 256):
+                adj[row][col] = int(line[cnt])
+                adj[col][row] = int(line[cnt])
+                cnt += 1
+                pass
+            pass
+        pass
+
+    lists = []
+    for row in range(256):
+        li = []
+        for col in range(256):
+            if adj[row][col] == 1:
+                li.append(col)
+                pass
+            pass
+        lists.append(li)
+        pass
+
+    avg_prof = make_prof(lists, 256, 0)
+    with open("BaseSIRResults.txt", "w") as f:
+        print(avg_prof)
+        for val in avg_prof:
+            if val > 0:
+                print(val)
+                f.write(str(val) + "\n")
+                pass
+            pass
+        pass
 
 
     # lists = []
