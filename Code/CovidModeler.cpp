@@ -180,7 +180,7 @@ vector<int> simulation() {
     //vector< vector < int > All_the_simulations;
 
     //tests();
-    int newVariantsFlag = 0;
+    int newVariantsFlag = 2;
 //    srand48((int) time(NULL));
 //	srand((int) time(NULL));
     std::vector<int> listOfPoints;
@@ -199,7 +199,7 @@ vector<int> simulation() {
 
     Graph a;
     //a.initialize(256, listOfPoints, immunityLength, listOfPoints, 0.63, 0.126, 0.006666, 0.00168214);
-    a.initialize(256, listOfPoints, immunityLength, listOfPoints, 0.01, 0.0, 0.0, 1.0);
+    a.initialize(256, listOfPoints, immunityLength, listOfPoints, 0.5, 0.0, 0.0, 1.0);
     //cout << "HERE1.105" << endl;
     //a.printAdj();
     a.infect(0, 0);
@@ -215,7 +215,8 @@ vector<int> simulation() {
 
     int max_timeSteps = 1000;
     int count = 0;
-    double variantProb = 0.0001;
+    double variantProb = 0.01;
+	int newInfectedDate = 5;
 
     //cout << "HERE1.1" << endl;
 
@@ -252,35 +253,47 @@ vector<int> simulation() {
                 a.newVariant(variant2);
             }
         }
+        if (newVariantsFlag == 2) {
+            if (count == newInfectedDate) {
+                //cout << "Adding New Variant\n";
+                variant2 = makeNewVariant(listOfPoints, immunityLength);
+                a.newVariant(variant2);
+            }
+        }
         stats = a.nextTimeStep();
+		//cout << "Here\n";
+		//printVector(stats);
         sum = 0;
         for (auto &val: infectedLog) {
             sum += val;
         }
         //cout << stats[0] << endl;
-        //printVector(stats);
         states = a.getState();
         //cout << "\n";
         //printVector(states);
 //        stats = a.nextTimeStep();
 
         infectedLog.push_back(stats[0]);
-        printVector(infectedLog);
+        //printVector(infectedLog);
         deathLog.push_back(stats[1]);
         lifeLog.push_back(stats[2]);
-        sum = 0;
-        for (int x = 3; x < stats.size(); x++) {
-            sum = sum + stats[x];
-        }
-        TotalNewInfectLog.push_back(sum);
+        // sum = 0;
+//         for (int x = 3; x < stats.size(); x++) {
+//             sum = sum + stats[x];
+//         }
+//         TotalNewInfectLog.push_back(sum);
+		TotalNewInfectLog.push_back(stats[0]);
+		//cout << sum << "\n";
 
         count++;
+		//cout << count << "\n";
     }
+	
     int final1 = a.numOfVariants();
     // printVector(infectedLog);
     //printVector(deathLog);
     // printVector(lifeLog);
-//    cout << final1 << "\n";
+	//cout << final1 << "\n";
     //writeToFile(infectedLog, "InfectedLog.txt");
     //writeToFile(deathLog, "DeathLog.txt");
     //writeToFile(lifeLog, "LifeLog.txt");

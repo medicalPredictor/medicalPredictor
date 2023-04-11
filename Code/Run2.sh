@@ -1,5 +1,5 @@
 #! /bin/bash
 make
-./a.out
-gnuplot ../GnuScriptMeanFitnessOverTime
-pstopdf ../CovidModelerLogs.eps
+./CovidModel
+#gnuplot ../GnuScriptMeanFitnessOverTime
+#pstopdf ../CovidModelerLogs.eps

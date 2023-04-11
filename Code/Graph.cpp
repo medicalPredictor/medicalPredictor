@@ -28,7 +28,7 @@ deathProb1) {
     }
     //cout << "HERE2" << endl;
     //cout<<bitspray[0] << endl;
-   // cout<<bitspray.empty()<<endl;
+    //cout<<bitspray.empty()<<endl;
 
     for (int x = 0; x < adj.size(); x++) {
         for (int y = x + 1; y < adj[x].size(); y++) {
@@ -121,15 +121,25 @@ vector<int> Graph::nextTimeStep() {
     int deaths = 0;
     int life = 0;
     vector<int> infected;
+	vector<int> state;
     int sumInf = 0;
     updateInfected();
     //cout << "infected updated\n";
     infected = getInfected();
+	state = getState();
     //cout << "infected aquired\n";
     //printVector(infected);
     for (int x = 0; x < infected.size(); x++) {
+		//cout << infected[x] << " ";
         sumInf += infected[x];
     }
+	//cout << "\n";
+	
+	// for(int x = 0; x < state.size(); x++)
+// 	{
+// 		cout << state[x] << " ";
+// 	}
+// 	cout << "\n";
 
     deaths = deathCount();
     life = lifeCount();
@@ -137,6 +147,7 @@ vector<int> Graph::nextTimeStep() {
     stats.push_back(sumInf);
     stats.push_back(deaths);
     stats.push_back(life);
+	stats.push_back(numOfVariants());
 
     return (stats);
 }
@@ -563,6 +574,7 @@ vector<int> Graph::runVariant(int variant) {
 int Graph::updateInfected() {
     vector<vector<int> > infectionListList;
     vector<vector<int> > holder;
+	
     for (int x = 0; x < VariantDic.size(); x++) {
         holder.push_back(runVariant(x));
     }
