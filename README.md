@@ -6,3 +6,6 @@ Github for code and record of research pretaining to the medical predictor.
 ## Python visualizer (plotter and comparator)
 ## cpp readme function output
 ## cpp data function output
+
+# Michael's Task
+## Add fixed variant string to python of code.

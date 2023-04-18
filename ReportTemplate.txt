@@ -7,10 +7,11 @@ ___
 DATA.DAT
 [Name for experiment]
 ___
-For each epidemic:
-    For each time step:
-        [number of new infections, number of new deaths, number of recoveries]
-    Deliminator for end of time steps: *577+-
+For each epidemic (simulation):
+    The Overall Epidemic Profile:
+        For each time step:
+            [number of new infections, number of new deaths, number of recoveries]
+    Deliminator for end of profile: *577+-
     For each variant:
         [variant string, start date, [variant profile]]
     Deliminator for end of epi: %$@*^$

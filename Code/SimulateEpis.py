@@ -18,12 +18,14 @@ from typing import List
 alpha = 0.01
 immunity_length = 7
 
-def infected(sick: int, ratio: float):
+
+def infected(sick: int, potent_ones: int, total_ones: int):
     if alpha == 1:
         return True
     else:
-        beta = 1 - exp(sick *  log(1 - alpha))
-        if random.random() < beta:
+        beta = 1 - exp(sick * log(1 - alpha))
+        ratio = potent_ones/total_ones  # ratio in [0, 1]
+        if random.random() < (beta * ratio):
             return True
     return False
 
@@ -46,13 +48,120 @@ def get_variants():
 
 
 def count_mismatches(immunity: [], variant: []):
-    cnt = 0
+    potent_cnt = 0
+    total_cnt = variant.count(1)
     for idx in range(len(immunity)):
         if variant[idx] == 1 and immunity[idx] == 0:
-            cnt += 1
+            potent_cnt += 1
             pass
         pass
-    return cnt
+    return potent_cnt, total_cnt
+
+
+def gen_new_variant(idx: int):
+    variants = get_variants()
+    return variants[idx]
+
+
+def StoI(variant_str: [], immunity_str: []):
+    for idx in range(len(variant_str)):
+        if variant_str[idx] == 1:
+            immunity_str[idx] = 1
+            pass
+        pass
+    return immunity_str
+
+
+def run_epi(adj: List[List[int]], p0, var_prob: float, death_prob: float, decay_prob: float, var_timesteps: [] or None):
+    num_nodes = len(adj)
+    var_count = 0
+    n_state = [0 for _ in range(num_nodes)]
+    v_state = [-1 for _ in range(num_nodes)]
+    n_state[p0] = 1
+    v_state[p0] = var_count
+    epi_log = [[p0]]
+    var_logs = []
+    variants = []
+
+    num_infected = 1
+    ttl_infected = 0
+    time_step = 0
+    length = 0
+
+    immunity = [[0 for _ in range(immunity_length)] for _ in range(nodes)]
+    variants.append(gen_new_variant(var_count))
+    var_count += 1
+    var_logs.append([0, [1]])
+    immunity[0] = variants[var_count]  # immunity for current variant
+
+    while num_infected > 0 and time_step < nodes:
+        if var_timesteps is None:
+            if random.random() < var_prob:  # new variant
+                variants.append(gen_new_variant(var_count))
+                var_count += 1
+                success = False
+                tries = 0
+                while not success and tries < num_nodes:
+                    node = randint(0, num_nodes - 1)
+                    if n_state[node] == 0:  # susceptible
+                        potent_cnt, total_cnt = count_mismatches(variants[-1], immunity[node])
+                        if potent_cnt > 0:  # not entirely immune
+                            n_state[node] = 1
+                            v_state[node] = var_count - 1
+                            success = True
+                            pass
+                        pass
+                    tries += 1
+                    pass
+                pass
+            pass
+        elif time_step in var_timesteps:  # make new variant this timestep
+            # TODO: Add functionality.
+            pass
+        
+        inf_neighbours = [[] for _ in range(nodes)]
+        for n in range(nodes):
+            if n_state[n] == 1:  # infected
+                for nei in adj[n]:
+                    inf_neighbours[nei].append(n)
+                    pass
+                pass
+            pass
+        for n in range(nodes):
+            if n_state[n] == 0 and len(inf_neighbours[n]) > 0:
+                for nei in inf_neighbours[n]:
+                    if n_state[n] == 0:
+                        potent_cnt, total_cnt = count_mismatches(immunity[n], v_state[nei])
+                        if infected(1, potent_cnt, total_cnt):
+                            n_state[n] = 3  # new infected
+                            v_state[n] = v_state[nei]  # with variant
+                            pass
+                        pass
+                    pass
+                pass
+            pass
+        ttl_infected += num_infected
+        num_infected = 0
+        new_inf = []
+        for n in range(nodes):
+            if n_state[n] == 1:  # infected -> susceptible
+                n_state[n] = 0
+                pass
+            elif n_state[n] == 3:  # new infected -> infected
+                n_state[n] = 1
+                num_infected += 1
+                new_inf.append(n)
+                immunity[n] = StoI(variants[v_state[n]], immunity[n])
+                pass
+            elif n_state[n] == 0:  # susceptible
+                pass
+            elif n_state[n] == 2:  # removed
+                pass
+        epi_log.append(new_inf)
+        length += 1
+        time_step += 1
+        pass
+    return epi_log, var_logs
 
 
 def fitness_bare(adj_lists: List[List[int]], nodes: int, p0, varProb: float, deathProb: float, decayProb: float):
@@ -124,7 +233,7 @@ def make_prof(adj_lists: List[List[int]], nodes: int, p0):
         pass
 
     for idx in range(most):
-        avg_prof[idx] = avg_prof[idx]/1000
+        avg_prof[idx] = avg_prof[idx] / 1000
         pass
 
     return avg_prof
@@ -133,17 +242,17 @@ def make_prof(adj_lists: List[List[int]], nodes: int, p0):
 def main():
     hist = [0 for _ in range(100)]
     for _ in range(10):
-        sum=0
+        sum = 0
         for _ in range(10000):
-            val = (random.randint(0, 50000) % 100)/100
+            val = (random.randint(0, 50000) % 100) / 100
             sum += val
             hist[int(val * 100)] += 1
             pass
-        print(sum/10000)
+        print(sum / 10000)
     print(hist)
     print(min(hist))
     print(max(hist))
-    print(hist.index(max(hist))/100)
+    print(hist.index(max(hist)) / 100)
     file = "./bs_test.txt"
     adj = [[0 for _ in range(256)] for _ in range(256)]
     edges = 0
@@ -154,7 +263,7 @@ def main():
         line = lines[0].rstrip('\n').split('\t')
         cnt = 0
         for row in range(256):
-            for col in range(row+1, 256):
+            for col in range(row + 1, 256):
                 adj[row][col] = int(line[cnt])
                 adj[col][row] = int(line[cnt])
                 cnt += 1
@@ -183,7 +292,6 @@ def main():
                 pass
             pass
         pass
-
 
     # lists = []
     # with open("dublin_graph.dat", "w") as f:
@@ -214,5 +322,6 @@ def main():
     #     pass
 
     pass
+
 
 main()
