@@ -71,10 +71,17 @@ deathProb1) {
     deathcount = 0;
     newInfections=1;
 
+    initialized = true;
+
     return (0);
 }
 
+// TODO: Re-factor and simplify the simulate method from CovidModeler.cpp to Graph.cpp
 int Graph::simulateEpidemic(double infProb, double recoveryProb, double decayProb, double dieProb){
+    if (!initialized){
+        cout<<"ERROR!  Graph has not been initialized!"<<endl;
+    }
+
     // TODO: Incomplete, so complete it!
     vector<int> listOfBits;
     vector<int> curS, curI, curR, newS, newI, netNewI, newR;
