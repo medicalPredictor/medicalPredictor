@@ -67,8 +67,4 @@ private:
     int deathcount; // Total deaths during epi
     double calcExtra(vector<int> Ac, int x, int totalBits, int variant);
     int newInfections;
-
-
-
-    bool initialized = false;
 };

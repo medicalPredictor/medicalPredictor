@@ -3,12 +3,18 @@
 #include "Graph.h"
 
 int main() {
+	ofstream vals;
     srand48((int) time(nullptr));
     srand((int) time(nullptr));
     vector<vector<int> > All_the_simulations;
-    int sims = 1000;
+    int sims = 30;
+	string Outputfile = "./CovidModellerOutput.txt";
+    vals.open(Outputfile, ios::out);
+	vals << "Experiment 1" << endl;
+	vals << "__" << endl;
+    vals.close();
     for (int y = 0; y < sims; y++) {
-        All_the_simulations.push_back(simulation());
+        All_the_simulations.push_back(simulation(Outputfile));
     }
     //All_the_simulations.push_back(simulation());
     vector<double> results;
@@ -27,15 +33,20 @@ int main() {
         results[x] = double(results[x]) / sims;
     }
 
-    ofstream vals;
+    //ofstream vals;
     vals.open("./CovidModellerResults.txt", ios::out);
     for (auto &val: results) {
         if (val > 0) {
-            cout << val << endl;
+            //cout << val << endl;
             vals << val << endl;
         }
     }
     vals.close();
+	//     vals.open("./CovidModellerOutput.txt", ios::out);
+	// vals << "Experiment 1" << endl;
+	// vals << "__" << endl;
+	//     }
+	//     vals.close();
 }
 
 /**
@@ -176,18 +187,25 @@ vector<int> makeNewVariant(vector<int> bits, int length) {
  *
  * @return          If the program completes successfully, returns 0.
  */
-vector<int> simulation() {
+vector<int> simulation(string outfile) {
     //vector< vector < int > All_the_simulations;
 
     //tests();
+	//ofstream vals;
     int newVariantsFlag = 2;
 //    srand48((int) time(NULL));
 //	srand((int) time(NULL));
     std::vector<int> listOfPoints;
+	std::vector < vector<int> > variantList;
     ReadData("../bs_test.txt", &listOfPoints, 100000);
+	ReadData2("../variants.txt", &variantList, 100000);
+	
 
     //cout << "Here\n";
-//    printVector(listOfPoints);
+	//printVector(variantList[0]);
+	//cout << "\n";
+	//printVector(variantList[1]);
+	//printVector(variantList[2]);
 
     vector<int> infectedLog;
     vector<int> deathLog;
@@ -199,8 +217,9 @@ vector<int> simulation() {
 
     Graph a;
     //a.initialize(256, listOfPoints, immunityLength, listOfPoints, 0.63, 0.126, 0.006666, 0.00168214);
-    a.initialize(256, listOfPoints, immunityLength, listOfPoints, 0.5, 0.0, 0.0, 1.0);
+    a.initialize(256, listOfPoints, variantList[0].size(), variantList[0], 0.5, 0.0, 0.0, 1.0);
     //cout << "HERE1.105" << endl;
+	int counter = 0;
     //a.printAdj();
     a.infect(0, 0);
     vector<int> infected;
@@ -249,15 +268,24 @@ vector<int> simulation() {
             variantTest = drand48();
             if (variantTest < variantProb) {
                 cout << "Adding New Variant\n";
-                variant2 = makeNewVariant(listOfPoints, immunityLength);
-                a.newVariant(variant2);
+                //variant2 = makeNewVariant(listOfPoints, immunityLength);
+                //a.newVariant(variant2);
+				if(counter < variantList.size())
+				{
+					counter++;
+	                a.newVariant(variantList[counter]);
+				}
             }
         }
         if (newVariantsFlag == 2) {
             if (count == newInfectedDate) {
                 //cout << "Adding New Variant\n";
-                variant2 = makeNewVariant(listOfPoints, immunityLength);
-                a.newVariant(variant2);
+                //variant2 = makeNewVariant(listOfPoints, immunityLength);
+				if(counter < variantList.size())
+				{
+					counter++;
+	                a.newVariant(variantList[counter]);
+				}
             }
         }
         stats = a.nextTimeStep();
@@ -290,6 +318,43 @@ vector<int> simulation() {
     }
 	
     int final1 = a.numOfVariants();
+	cout << "Here\n";
+	ofstream vals;
+    vals.open(outfile, ios::out|ios::app);
+	if (vals.is_open())
+	  {
+		cout << "HERe\n";
+
+        cout << '1' << " ";
+        vals << '1' << " ";
+	    for (int x = 1; x < infectedLog.size(); x++) {
+	        if (infectedLog[x] > 0) {
+	            cout << infectedLog[x] << " ";
+				vals << infectedLog[x] << " ";
+	            //vals << val << " ";
+	        }
+	    }
+        cout << endl;
+        vals << endl;
+		
+        cout << deathLog[0] << " ";
+        vals << deathLog[0] << " ";
+	    for (int x = 1; x < deathLog.size(); x++) {
+	        if (deathLog[x] > 0) {
+	            cout << deathLog[x] - deathLog[x-1] << " ";
+				vals << deathLog[x] - deathLog[x-1] << " ";
+	            //vals << val << " ";
+	        }
+	    }
+        cout << endl;
+        vals << endl;	
+		
+		vals << "__" << endl;
+	    vals.close();
+		cout << "Here3\n";
+	  }
+	cout << "Here2\n";
+
     // printVector(infectedLog);
     //printVector(deathLog);
     // printVector(lifeLog);
@@ -323,6 +388,66 @@ void ReadData(string input1, std::vector<int> *listOfPoints, int linesize) {//re
     line = buf1;
     tokenize(line, '\t', &out);
     (*listOfPoints) = out;
+    input.close();
+}
+
+/**
+ * Reads in a txt file and saves to the vector of ints passed to the function.
+ *
+ * @param input1  name of file to be imported.
+ * @param listOfPoints  pointer to a vector of integers to be populated with the information from the input.
+ * @param linesize  Number of characters expected in each line of the input file.
+ * @return        
+ */
+void ReadData2(string input1, std::vector <std::vector<int> > *listOfPoints, int linesize) {//read in the data
+
+    fstream input;
+    char buf1[linesize];
+    string buf2;
+    string line;
+	
+	//cout << input1 << "\n";
+
+    string inputFile = input1;
+	
+	//cout << inputFile << "\n";
+
+    std::vector<int> out;
+    input.open(inputFile, ios::in);
+	
+	//cout << inputFile << "\n";
+    //input.getline(buf1, linesize); //Get first line
+    //line = buf1;
+	while(input.getline(buf1, linesize))
+	{
+		line = buf1;
+		//cout << line << "\n";
+		//cout << "\n";
+		//cout << "Done line\n";
+	    tokenize(line, '\t', &out);
+		// for(int x = 0; x < out.size(); x++)
+		// {
+		// 	cout << out[x] << " ";
+		// 	//out.pop_back();
+		// }
+		//cout << out << "\n";
+		//cout << "\n";
+		//cout << "Done line2\n";
+	    (*listOfPoints).push_back(out);
+		//cout << out.size() << "\n";
+		for(int x = out.size(); x > 0; x--)
+		{
+			//cout << out[x] << " ";
+			out.pop_back();
+		}
+		//cout << "\n";
+	    //input.getline(buf1, linesize); //Get first line
+	    //line = buf1;
+	}
+	
+	//cout << inputFile << "\n";
+    //tokenize(line, '\t', &out);
+    //(*listOfPoints).push_back(out);
     input.close();
 }
 

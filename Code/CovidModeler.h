@@ -12,8 +12,9 @@ using namespace std;
 void ReadData(string input1, std::vector<int> *listOfPoints, int linesize);
 void tokenize(std::string const str, const char delim, std::vector<int> *out);
 void writeToFile(vector<int> data, string filename);
-vector<int> simulation();
+vector<int> simulation(string outfile);
 int printVector(vector<int> vec);
+void ReadData2(string input1, std::vector <std::vector<int> > *listOfPoints, int linesize);
 
 /**
  * Prints an integer vector. Mostly for debugging purposes.
