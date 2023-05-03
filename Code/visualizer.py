@@ -1,16 +1,30 @@
-from tkinter import *
+import tkinter as tk
+import matplotlib.pyplot as plt
+import numpy as np
+import os 
 
-params = Tk()
-
+# Init windows and titles
+params = tk.Tk()
 params.title("Parameters")
-
-averagedSims = Tk()
-
+averagedSims = tk.Tk()
 averagedSims.title("Averaged Simulations")
 
-testData = []
-[testData for x in range(100)]
+# Test graph data
+testData = np.arange(0.0,2.0,0.01)
+# Make/plot/save data
+fig,ax = plt.subplots()
+ax.plot(testData,testData) # More useful tags if needed
+ax.set(xlabel = 'Beep', ylabel ='Boop', title = 'Testing') # fig is now our plot
+fig.savefig("test.png")
 
-mainloop()
+# Get image for gui
+pic = tk.PhotoImage(file="test.png")
 
+message = tk.Label(params,text='Test',cursor='gobbler') # makes the message
+message.grid() # puts the message in the textbox
+myPlot = tk.Label(averagedSims,image=pic)
+myPlot.pack()
+
+# Turn it on
+tk.mainloop()
 
