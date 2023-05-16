@@ -15,7 +15,7 @@ from statistics import mean
 
 from typing import List
 
-alpha = 0.01
+alpha = 0.63
 immunity_length = 7
 
 
@@ -24,7 +24,7 @@ def infected(sick: int, potent_ones: int, total_ones: int):
         return True
     else:
         beta = 1 - exp(sick * log(1 - alpha))
-        ratio = potent_ones/total_ones  # ratio in [0, 1]
+        ratio = potent_ones / total_ones  # ratio in [0, 1]
         if random.random() < (beta * ratio):
             return True
     return False
@@ -32,7 +32,7 @@ def infected(sick: int, potent_ones: int, total_ones: int):
 
 def get_variants():
     variants = []
-    with open("variant.txt") as f:
+    with open("./variants.txt") as f:
         lines = f.readlines()
         for line in lines:
             variant = []
@@ -49,7 +49,12 @@ def get_variants():
 
 def count_mismatches(immunity: [], variant: []):
     potent_cnt = 0
-    total_cnt = variant.count(1)
+    total_cnt = 0
+    for val in variant:
+        if val == 1:
+            total_cnt += 1
+            pass
+        pass
     for idx in range(len(immunity)):
         if variant[idx] == 1 and immunity[idx] == 0:
             potent_cnt += 1
@@ -66,20 +71,33 @@ def gen_new_variant(idx: int):
 def StoI(variant_str: [], immunity_str: []):
     for idx in range(len(variant_str)):
         if variant_str[idx] == 1:
-            immunity_str[idx] = 1
+            immunity_str[idx] += 1
             pass
         pass
     return immunity_str
 
 
-def run_epi(adj: List[List[int]], p0, var_prob: float, death_prob: float, decay_prob: float, var_timesteps: [] or None):
+def decay(variant_str: [], immunity_str: []):
+    for idx in range(len(variant_str)):
+        if variant_str[idx] == 1:
+            immunity_str[idx] -= 1
+            pass
+        pass
+    return immunity_str
+
+
+def run_epi(adj: List[List[int]], p0, var_prob: float, death_prob: float, decay_prob: float, rec_prob: float,
+            var_timesteps: [] or None):
     num_nodes = len(adj)
     var_count = 0
     n_state = [0 for _ in range(num_nodes)]
     v_state = [-1 for _ in range(num_nodes)]
+    inf_logs = [[] for _ in range(num_nodes)]
+    IDR_logs = [[1], [0], [0]]
     n_state[p0] = 1
     v_state[p0] = var_count
     epi_log = [[p0]]
+    inf_logs[p0].append(0)
     var_logs = []
     variants = []
 
@@ -88,50 +106,46 @@ def run_epi(adj: List[List[int]], p0, var_prob: float, death_prob: float, decay_
     time_step = 0
     length = 0
 
-    immunity = [[0 for _ in range(immunity_length)] for _ in range(nodes)]
+    immunity = [[0 for _ in range(immunity_length)] for _ in range(num_nodes)]
     variants.append(gen_new_variant(var_count))
+    immunity[0] = variants[var_count]  # immunity for current variant
     var_count += 1
     var_logs.append([0, [1]])
-    immunity[0] = variants[var_count]  # immunity for current variant
 
-    while num_infected > 0 and time_step < nodes:
-        if var_timesteps is None:
-            if random.random() < var_prob:  # new variant
-                variants.append(gen_new_variant(var_count))
-                var_count += 1
-                success = False
-                tries = 0
-                while not success and tries < num_nodes:
-                    node = randint(0, num_nodes - 1)
-                    if n_state[node] == 0:  # susceptible
-                        potent_cnt, total_cnt = count_mismatches(variants[-1], immunity[node])
-                        if potent_cnt > 0:  # not entirely immune
-                            n_state[node] = 1
-                            v_state[node] = var_count - 1
-                            success = True
-                            pass
+    while num_infected > 0 and time_step < num_nodes:
+        if (var_timesteps is None and random.random() < var_prob) or time_step in var_timesteps:  # new variant
+            variants.append(gen_new_variant(var_count))
+            var_logs.append([time_step, [1]])
+            var_count += 1
+            success = False
+            tries = 0
+            while not success and tries < num_nodes:
+                node = random.randint(0, num_nodes - 1)
+                if n_state[node] == 0:  # susceptible
+                    potent_cnt, total_cnt = count_mismatches(immunity[node], variants[-1])
+                    if potent_cnt > 0:  # not entirely immune
+                        n_state[node] = 1
+                        v_state[node] = var_count - 1
+                        success = True
                         pass
-                    tries += 1
                     pass
+                tries += 1
                 pass
             pass
-        elif time_step in var_timesteps:  # make new variant this timestep
-            # TODO: Add functionality.
-            pass
-        
-        inf_neighbours = [[] for _ in range(nodes)]
-        for n in range(nodes):
+
+        inf_neighbours = [[] for _ in range(num_nodes)]
+        for n in range(num_nodes):
             if n_state[n] == 1:  # infected
                 for nei in adj[n]:
                     inf_neighbours[nei].append(n)
                     pass
                 pass
             pass
-        for n in range(nodes):
+        for n in range(num_nodes):
             if n_state[n] == 0 and len(inf_neighbours[n]) > 0:
                 for nei in inf_neighbours[n]:
                     if n_state[n] == 0:
-                        potent_cnt, total_cnt = count_mismatches(immunity[n], v_state[nei])
+                        potent_cnt, total_cnt = count_mismatches(immunity[n], variants[v_state[nei]])
                         if infected(1, potent_cnt, total_cnt):
                             n_state[n] = 3  # new infected
                             v_state[n] = v_state[nei]  # with variant
@@ -143,28 +157,53 @@ def run_epi(adj: List[List[int]], p0, var_prob: float, death_prob: float, decay_
         ttl_infected += num_infected
         num_infected = 0
         new_inf = []
-        for n in range(nodes):
+        for log in var_logs:
+            log[1].append(0)
+            pass
+
+        for node in range(num_nodes):
+            if len(inf_logs[node]) and random.random() < decay_prob:
+                to_rmv = inf_logs[node][0]
+                inf_logs[node] = inf_logs[node][1:]
+                immunity[node] = decay(variants[to_rmv], immunity[node])
+                pass
+            pass
+
+        new_deaths = 0
+        new_recoveries = 0
+        for n in range(num_nodes):
             if n_state[n] == 1:  # infected -> susceptible
-                n_state[n] = 0
+                if random.random() < rec_prob:
+                    n_state[n] = 0
+                    new_recoveries += 1
+                    pass
+                elif random.random() < death_prob:
+                    n_state[n] = 2
+                    new_deaths += 1
+                    pass
                 pass
             elif n_state[n] == 3:  # new infected -> infected
                 n_state[n] = 1
                 num_infected += 1
                 new_inf.append(n)
                 immunity[n] = StoI(variants[v_state[n]], immunity[n])
+                var_logs[v_state[n]][1][-1] += 1
                 pass
             elif n_state[n] == 0:  # susceptible
                 pass
             elif n_state[n] == 2:  # removed
                 pass
         epi_log.append(new_inf)
+        IDR_logs[0].append(len(new_inf))
+        IDR_logs[1].append(new_deaths)
+        IDR_logs[2].append(new_recoveries)
         length += 1
         time_step += 1
         pass
-    return epi_log, var_logs
+    return epi_log, IDR_logs, var_logs
 
 
-def fitness_bare(adj_lists: List[List[int]], nodes: int, p0, varProb: float, deathProb: float, decayProb: float):
+def fitness_bare(adj_lists: List[List[int]], nodes: int, p0: int, varProb: float, deathProb: float, decayProb: float):
     temp_list = copy.deepcopy(adj_lists)
     var_count = 0
     n_state = [0 for _ in range(nodes)]  # susceptible
@@ -240,30 +279,20 @@ def make_prof(adj_lists: List[List[int]], nodes: int, p0):
 
 
 def main():
-    hist = [0 for _ in range(100)]
-    for _ in range(10):
-        sum = 0
-        for _ in range(10000):
-            val = (random.randint(0, 50000) % 100) / 100
-            sum += val
-            hist[int(val * 100)] += 1
-            pass
-        print(sum / 10000)
-    print(hist)
-    print(min(hist))
-    print(max(hist))
-    print(hist.index(max(hist)) / 100)
+    num_nodes = 256
+    var_prob = 0.01
+    death_prob = 0.00168214
+    decay_prob = 0.006666
+    rec_prob = 0.126
+
     file = "./bs_test.txt"
-    adj = [[0 for _ in range(256)] for _ in range(256)]
-    edges = 0
-    # tot_weight = 0
-    # weight_cnt = [0 for _ in range(5)]
+    adj = [[0 for _ in range(num_nodes)] for _ in range(num_nodes)]
     with open(file, 'r') as f:
         lines = f.readlines()
         line = lines[0].rstrip('\n').split('\t')
         cnt = 0
-        for row in range(256):
-            for col in range(row + 1, 256):
+        for row in range(num_nodes):
+            for col in range(row + 1, num_nodes):
                 adj[row][col] = int(line[cnt])
                 adj[col][row] = int(line[cnt])
                 cnt += 1
@@ -272,9 +301,9 @@ def main():
         pass
 
     lists = []
-    for row in range(256):
+    for row in range(num_nodes):
         li = []
-        for col in range(256):
+        for col in range(num_nodes):
             if adj[row][col] == 1:
                 li.append(col)
                 pass
@@ -282,44 +311,17 @@ def main():
         lists.append(li)
         pass
 
-    avg_prof = make_prof(lists, 256, 0)
-    with open("BaseSIRResults.txt", "w") as f:
-        print(avg_prof)
-        for val in avg_prof:
-            if val > 0:
-                print(val)
-                f.write(str(val) + "\n")
-                pass
-            pass
+    var_timesteps = [5, 10, 15]
+    var_timesteps = [1, 2, 3, 4, 5]
+    epi_log, IDR_logs, var_logs = run_epi(lists, 0, var_prob, death_prob, decay_prob, rec_prob, var_timesteps)
+    print(epi_log)
+    print(IDR_logs[0])
+    print(IDR_logs[1])
+    print(IDR_logs[2])
+    for log in var_logs:
+        print(log)
         pass
-
-    # lists = []
-    # with open("dublin_graph.dat", "w") as f:
-    #     f.write(str(200) + " " + str(edges) + " " + str(tot_weight) + "\n")
-    #     for val in weight_cnt:
-    #         f.write(str(val) + " ")
-    #         pass
-    #     f.write("\n")
-    #     for rowIdx in range(200):
-    #         li = []
-    #         for colIdx in range(200):
-    #             for _ in range(int(adj[rowIdx][colIdx])):
-    #                 li.append(int(colIdx))
-    #                 f.write(str(colIdx) + " ")
-    #                 pass
-    #             pass
-    #         lists.append(li)
-    #         f.write("\n")
-    #         pass
-    #     pass
-
-    # avgProf = make_prof(lists, 200, 0)
-
-    # with open("Profiles/Profile0.dat", "w") as f:
-    #     for av in avgProf:
-    #         f.write(str(av) + "\n")
-    #         pass
-    #     pass
+    return 0
 
     pass
 
