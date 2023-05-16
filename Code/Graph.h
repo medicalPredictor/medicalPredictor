@@ -32,6 +32,10 @@ public:
     vector<int> getInfected();
     vector<vector<int> > getCurrentVariantHistory();
     int deathCount();
+	int newInfectionCount();
+	int newDeathCount();
+	int newRecoveriesCount();
+	vector <int> getnewVariantInfectionsCount();
     int lifeCount();
     vector<int> runVariant(int variant);
     int updateInfected();
@@ -40,7 +44,6 @@ public:
     void kill();
     vector<int> nextTimeStep();
     int numOfVariants();
-
     int simulateEpidemic(double alpha, double recoveryProb, double decayProb, double deathProb);
 
 private:
@@ -57,6 +60,7 @@ private:
     vector<int> state;
     // infected[n] = 1: n is currently infected, 0: n is currently not infected
     vector<int> infected;
+	vector<int> newinfectedbyVariant;
     // variantDic[n] = {a record of all the variants generated since the start of the epi, the oldest first}
     vector<vector<int> > VariantDic;
     // immunityDic[n] = {n's current immunity string where >1 means immunity and 0 means susceptible}
@@ -67,4 +71,6 @@ private:
     int deathcount; // Total deaths during epi
     double calcExtra(vector<int> Ac, int x, int totalBits, int variant);
     int newInfections;
+	int newDeaths;
+	int newRecoveries;
 };

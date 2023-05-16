@@ -12,7 +12,7 @@ using namespace std;
 void ReadData(string input1, std::vector<int> *listOfPoints, int linesize);
 void tokenize(std::string const str, const char delim, std::vector<int> *out);
 void writeToFile(vector<int> data, string filename);
-vector<int> simulation(string outfile);
+vector<int> simulation(string outfile, std::vector < vector<int> > variantList, int * variants, vector < int > newInfectedDate, vector < vector < int > > * TotalNewVariantInfectedLog);
 int printVector(vector<int> vec);
 void ReadData2(string input1, std::vector <std::vector<int> > *listOfPoints, int linesize);
 
@@ -27,6 +27,20 @@ int printVector(vector<int> vec) {
         cout << vec[y] << " ";
     }
     cout << "\n";
+    return (0);
+}
+
+/**
+ * Prints an integer vector to stream. Mostly for debugging purposes.
+ *
+ * @param vec  A vector of intergers of any length.
+ * @return          If the program completes successfully, returns 0.
+ */
+int printVector(vector<int> vec, ofstream & vals) {
+    for (int y = 0; y < vec.size(); y++) {
+        vals << vec[y] << " ";
+    }
+    vals << "\n";
     return (0);
 }
 
