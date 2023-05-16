@@ -52,55 +52,55 @@ int main() {
     vals.close();
 	
 	//cout << variants << "\n";
-	vals.open(Outputfile, ios::out|ios::app);
-		//printVector(variantList[0]);
-	cout << "*577+-" << endl;
-	vals << "*577+-" << endl;
-		for(int x = 0; x < variants; x++)
-		{
-			printVector(variantList[x]);
-			printVector(variantList[x], vals);
-
-			if(x== 0)
-			{
-				cout << "Start Date: " << 0 << "\n";
-				vals << "Start Date: " << 0 << "\n";
-			}
-			if(x > 0)
-			{
-				cout << "Start Date: " << newInfectedDate[x-1] << "\n";
-				vals << "Start Date: " << newInfectedDate[x-1] << "\n";
-			}
-			if(x > 0)
-			{
-				for(int q = 0; q < newInfectedDate[x-1]; q++)
-				{
-					cout << 0 << " ";
-					vals << 0 << " ";
-				}
-			}
-
-			for(int y = 0; y < TotalNewVariantInfectedLog.size(); y++)
-			{
-				if(x == 0)
-				{
-					cout << TotalNewVariantInfectedLog[y][x] << " ";
-					vals << TotalNewVariantInfectedLog[y][x] << " ";
-				}
-				if(x > 0)
-				{
-					if(x < TotalNewVariantInfectedLog[y].size())
-					{
-						cout << TotalNewVariantInfectedLog[y][x] << " ";
-						vals << TotalNewVariantInfectedLog[y][x] << " ";
-					}
-				}
-
-			}
-			cout << "\n";
-			vals << "\n";
-		}
-	vals.close();
+	// vals.open(Outputfile, ios::out|ios::app);
+// 		//printVector(variantList[0]);
+// 	cout << "*577+-" << endl;
+// 	vals << "*577+-" << endl;
+// 		for(int x = 0; x < variants; x++)
+// 		{
+// 			printVector(variantList[x]);
+// 			printVector(variantList[x], vals);
+//
+// 			if(x== 0)
+// 			{
+// 				cout << "Start Date: " << 0 << "\n";
+// 				vals << "Start Date: " << 0 << "\n";
+// 			}
+// 			if(x > 0)
+// 			{
+// 				cout << "Start Date: " << newInfectedDate[x-1] << "\n";
+// 				vals << "Start Date: " << newInfectedDate[x-1] << "\n";
+// 			}
+// 			if(x > 0)
+// 			{
+// 				for(int q = 0; q < newInfectedDate[x-1]; q++)
+// 				{
+// 					cout << 0 << " ";
+// 					vals << 0 << " ";
+// 				}
+// 			}
+//
+// 			for(int y = 0; y < TotalNewVariantInfectedLog.size(); y++)
+// 			{
+// 				if(x == 0)
+// 				{
+// 					cout << TotalNewVariantInfectedLog[y][x] << " ";
+// 					vals << TotalNewVariantInfectedLog[y][x] << " ";
+// 				}
+// 				if(x > 0)
+// 				{
+// 					if(x < TotalNewVariantInfectedLog[y].size())
+// 					{
+// 						cout << TotalNewVariantInfectedLog[y][x] << " ";
+// 						vals << TotalNewVariantInfectedLog[y][x] << " ";
+// 					}
+// 				}
+//
+// 			}
+// 			cout << "\n";
+// 			vals << "\n";
+// 		}
+// 	vals.close();
 }
 
 /**
@@ -246,6 +246,16 @@ vector<int> simulation(string outfile, std::vector < vector<int> > variantList, 
 
     //tests();
 	//ofstream vals;
+	cout << (*TotalNewVariantInfectedLog).size() << "\n";
+	while((*TotalNewVariantInfectedLog).size() > 0)
+	{
+		while((*TotalNewVariantInfectedLog)[(*TotalNewVariantInfectedLog).size()-1].size() > 0)
+		{
+			(*TotalNewVariantInfectedLog)[(*TotalNewVariantInfectedLog).size()-1].pop_back();
+		}
+		(*TotalNewVariantInfectedLog).pop_back();
+	}
+	cout << (*TotalNewVariantInfectedLog).size() << "\n";
     int newVariantsFlag = 2;
 //    srand48((int) time(NULL));
 //	srand((int) time(NULL));
@@ -434,6 +444,63 @@ vector<int> simulation(string outfile, std::vector < vector<int> > variantList, 
 		
 		cout << "___" << endl;
 		vals << "___" << endl;
+		
+		
+		//vals.open(Outputfile, ios::out|ios::app);
+			//printVector(variantList[0]);
+		cout << "*577+-" << endl;
+		vals << "*577+-" << endl;
+			for(int x = 0; x < *final1; x++)
+			{
+				printVector(variantList[x]);
+				printVector(variantList[x], vals);
+
+				if(x== 0)
+				{
+					cout << "Start Date: " << 0 << "\n";
+					vals << "Start Date: " << 0 << "\n";
+				}
+				if(x > 0)
+				{
+					cout << "Start Date: " << newInfectedDate[x-1] << "\n";
+					vals << "Start Date: " << newInfectedDate[x-1] << "\n";
+				}
+				if(x > 0)
+				{
+					for(int q = 0; q < newInfectedDate[x-1]; q++)
+					{
+						cout << 0 << " ";
+						vals << 0 << " ";
+					}
+				}
+
+				for(int y = 0; y < TotalNewVariantInfectedLog->size(); y++)
+				{
+					if(x == 0)
+					{
+						cout << (*TotalNewVariantInfectedLog)[y][x] << " ";
+						vals << (*TotalNewVariantInfectedLog)[y][x] << " ";
+					}
+					if(x > 0)
+					{
+						if(x < (*TotalNewVariantInfectedLog)[y].size())
+						{
+							cout << (*TotalNewVariantInfectedLog)[y][x] << " ";
+							vals << (*TotalNewVariantInfectedLog)[y][x] << " ";
+						}
+					}
+
+				}
+				cout << "\n";
+				vals << "\n";
+			}
+			
+		cout << "*577+-" << endl;
+		vals << "*577+-" << endl;
+		cout << "___" << endl;
+		vals << "___" << endl;
+		//vals.close();
+		
 	    vals.close();
 	  }
     return (TotalNewInfectLog);
