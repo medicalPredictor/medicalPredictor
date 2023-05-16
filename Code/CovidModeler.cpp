@@ -246,6 +246,16 @@ vector<int> simulation(string outfile, std::vector < vector<int> > variantList, 
 
     //tests();
 	//ofstream vals;
+	cout << (*TotalNewVariantInfectedLog).size() << "\n";
+	while((*TotalNewVariantInfectedLog).size() > 0)
+	{
+		while((*TotalNewVariantInfectedLog)[(*TotalNewVariantInfectedLog).size()-1].size() > 0)
+		{
+			(*TotalNewVariantInfectedLog)[(*TotalNewVariantInfectedLog).size()-1].pop_back();
+		}
+		(*TotalNewVariantInfectedLog).pop_back();
+	}
+	cout << (*TotalNewVariantInfectedLog).size() << "\n";
     int newVariantsFlag = 2;
 //    srand48((int) time(NULL));
 //	srand((int) time(NULL));
