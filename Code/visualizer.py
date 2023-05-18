@@ -27,4 +27,3 @@ myPlot.pack()
 
 # Turn it on
 tk.mainloop()
-
