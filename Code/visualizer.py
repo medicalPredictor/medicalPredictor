@@ -32,7 +32,13 @@ avgLabel.pack()
 
 
 
+# Get image for gui
+pic = tk.PhotoImage(file="test.png")
 
-mainloop()
+message = tk.Label(params,text='Test',cursor='gobbler') # makes the message
+message.grid() # puts the message in the textbox
+myPlot = tk.Label(averagedSims,image=pic)
+myPlot.pack()
 
-
+# Turn it on
+tk.mainloop()
