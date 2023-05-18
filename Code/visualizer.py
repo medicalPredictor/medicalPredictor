@@ -1,44 +1,54 @@
-from tkinter import *
+import tkinter as tk
 from PIL import ImageTk, Image
 import matplotlib.pyplot as plt
+import time
 
-
-params = Tk() # The first window
-
+# Note, pic must be a UNIQUE variables
+def displayGraph(winTitle,winSize,pic):
 # Makes a new window with an image in the middle
-averagedSims = Toplevel()
-averagedSims.title("Averaged Simulations")
-averagedSims.geometry("1000x800")
-avgImage = Frame(averagedSims,width = 700, height = 600)
-avgImage.pack() # 
-avgImage.place(anchor = 'center', relx=0.5, rely = 0.5)
+    newWin = tk.Toplevel() 
+    newWin.title(winTitle)
+    newWin.geometry(winSize) # above 3 makes new window
+    imageHolder = tk.Frame(newWin,width = 700, height = 600)
+    imageHolder.pack()
+    imageHolder.place(anchor = 'center', relx=0.5, rely = 0.5) # above 3 makes new image
+    myPlot = tk.Label(newWin,image=pic) 
+    myPlot.pack()
+    return(newWin,imageHolder,myPlot)
 
-# Pull from file
-data = open("DATA.DAT",'r') # check data example file to make sure, should be I D R then varients
-contents = data.read()
-# Break into experiments
-# Break into individual stuffs  
-print(contents)
-
-# testData = []
-# [testData for x in range(100)]
-# plt.scatter(testData,testData,'ro')
-# plt.savefig("testData.png")
-
-# Actually draws the graph
-avgGraph = ImageTk.PhotoImage(Image.open("testData.png"))
-avgLabel = Label(avgImage, image = avgGraph)
-avgLabel.pack()
+def displayParams(winTitle,windSize,pic):
+    # newWin = tk.Toplevel()
+    # newWin.title(winTitle)
+    return()
 
 
 
-# Get image for gui
-pic = tk.PhotoImage(file="test.png")
+# want COMPLETE file name (DATA.DAT)
+# Data file should be in format in github. Pull up example file if needed
+def pullSim(filename):
+    # Pull from file
+    data = open(filename,'r')
+    contents = data.read()
+    print(contents)
+    # Now pull the time series data and keep it as a list    
+    return()
 
-message = tk.Label(params,text='Test',cursor='gobbler') # makes the message
-message.grid() # puts the message in the textbox
-myPlot = tk.Label(averagedSims,image=pic)
-myPlot.pack()
+def pullParams(filename):
+    return()
+
+
+
+# Init of GUI
+params = tk.Tk() # The first window
+params.title("Medical Predictor Data Visualizer")
+title = 'Averaged Simulations'; size = '1000x800';pic = tk.PhotoImage(file="test.png")
+displayGraph(title,size,pic)
+title2 = 'Potato'; size2 = '1000x800';pic2 = tk.PhotoImage(file="testData.png")
+displayGraph(title2,size2,pic2)
+
+
+
+
 
 # Turn it on
 tk.mainloop()
