@@ -43,7 +43,7 @@ params = tk.Tk() # The first window
 params.title("Medical Predictor Data Visualizer")
 title = 'Averaged Simulations'; size = '1000x800';pic = tk.PhotoImage(file="test.png")
 displayGraph(title,size,pic)
-title2 = 'Potato'; size2 = '1000x800';pic2 = tk.PhotoImage(file="testData.png")
+title2 = 'Tomato'; size2 = '1000x800';pic2 = tk.PhotoImage(file="tomato.png")
 displayGraph(title2,size2,pic2)
 
 
