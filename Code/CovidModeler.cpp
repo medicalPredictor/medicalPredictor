@@ -7,14 +7,22 @@ int main() {
     srand48((int) time(nullptr));
     srand((int) time(nullptr));
     vector<vector<int> > All_the_simulations;
-    int sims = 30;
-	string Outputfile = "./CovidModellerOutput.txt";
+	std::vector < vector<int> > variantList;
+    int sims = 2;
+	int variants = 0;
+	vector < int > newInfectedDate;
+	newInfectedDate.push_back(5);
+	newInfectedDate.push_back(10);
+	newInfectedDate.push_back(15);
+	string Outputfile = "./DATA.DAT";
     vals.open(Outputfile, ios::out);
 	vals << "Experiment 1" << endl;
 	vals << "__" << endl;
     vals.close();
+	ReadData2("../variants.txt", &variantList, 100000);
+	vector < vector < int > > TotalNewVariantInfectedLog;
     for (int y = 0; y < sims; y++) {
-        All_the_simulations.push_back(simulation(Outputfile));
+        All_the_simulations.push_back(simulation(Outputfile, variantList, &variants, newInfectedDate, &TotalNewVariantInfectedLog));
     }
     //All_the_simulations.push_back(simulation());
     vector<double> results;
@@ -42,11 +50,57 @@ int main() {
         }
     }
     vals.close();
-	//     vals.open("./CovidModellerOutput.txt", ios::out);
-	// vals << "Experiment 1" << endl;
-	// vals << "__" << endl;
-	//     }
-	//     vals.close();
+	
+	//cout << variants << "\n";
+	// vals.open(Outputfile, ios::out|ios::app);
+// 		//printVector(variantList[0]);
+// 	cout << "*577+-" << endl;
+// 	vals << "*577+-" << endl;
+// 		for(int x = 0; x < variants; x++)
+// 		{
+// 			printVector(variantList[x]);
+// 			printVector(variantList[x], vals);
+//
+// 			if(x== 0)
+// 			{
+// 				cout << "Start Date: " << 0 << "\n";
+// 				vals << "Start Date: " << 0 << "\n";
+// 			}
+// 			if(x > 0)
+// 			{
+// 				cout << "Start Date: " << newInfectedDate[x-1] << "\n";
+// 				vals << "Start Date: " << newInfectedDate[x-1] << "\n";
+// 			}
+// 			if(x > 0)
+// 			{
+// 				for(int q = 0; q < newInfectedDate[x-1]; q++)
+// 				{
+// 					cout << 0 << " ";
+// 					vals << 0 << " ";
+// 				}
+// 			}
+//
+// 			for(int y = 0; y < TotalNewVariantInfectedLog.size(); y++)
+// 			{
+// 				if(x == 0)
+// 				{
+// 					cout << TotalNewVariantInfectedLog[y][x] << " ";
+// 					vals << TotalNewVariantInfectedLog[y][x] << " ";
+// 				}
+// 				if(x > 0)
+// 				{
+// 					if(x < TotalNewVariantInfectedLog[y].size())
+// 					{
+// 						cout << TotalNewVariantInfectedLog[y][x] << " ";
+// 						vals << TotalNewVariantInfectedLog[y][x] << " ";
+// 					}
+// 				}
+//
+// 			}
+// 			cout << "\n";
+// 			vals << "\n";
+// 		}
+// 	vals.close();
 }
 
 /**
@@ -187,16 +241,26 @@ vector<int> makeNewVariant(vector<int> bits, int length) {
  *
  * @return          If the program completes successfully, returns 0.
  */
-vector<int> simulation(string outfile) {
+vector<int> simulation(string outfile, std::vector < vector<int> > variantList, int * final1, vector < int > newInfectedDate, vector < vector < int > > * TotalNewVariantInfectedLog) {
     //vector< vector < int > All_the_simulations;
 
     //tests();
 	//ofstream vals;
+	cout << (*TotalNewVariantInfectedLog).size() << "\n";
+	while((*TotalNewVariantInfectedLog).size() > 0)
+	{
+		while((*TotalNewVariantInfectedLog)[(*TotalNewVariantInfectedLog).size()-1].size() > 0)
+		{
+			(*TotalNewVariantInfectedLog)[(*TotalNewVariantInfectedLog).size()-1].pop_back();
+		}
+		(*TotalNewVariantInfectedLog).pop_back();
+	}
+	cout << (*TotalNewVariantInfectedLog).size() << "\n";
     int newVariantsFlag = 2;
 //    srand48((int) time(NULL));
 //	srand((int) time(NULL));
     std::vector<int> listOfPoints;
-	std::vector < vector<int> > variantList;
+	//std::vector < vector<int> > variantList;
     ReadData("../bs_test.txt", &listOfPoints, 100000);
 	ReadData2("../variants.txt", &variantList, 100000);
 	
@@ -211,13 +275,16 @@ vector<int> simulation(string outfile) {
     vector<int> deathLog;
     vector<int> lifeLog;
     vector<int> TotalNewInfectLog;
+	vector<int> TotalNewDeathLog;
+	vector<int> TotalNewRecovLog;
+	//vector < vector < int > > TotalNewVariantInfectedLog;
     int immunityLength = 7;
 
     //cout << "HERE1" << endl;
 
     Graph a;
-    //a.initialize(256, listOfPoints, immunityLength, listOfPoints, 0.63, 0.126, 0.006666, 0.00168214);
-    a.initialize(256, listOfPoints, variantList[0].size(), variantList[0], 0.5, 0.0, 0.0, 1.0);
+    a.initialize(256, listOfPoints, variantList[0].size(), variantList[0], 0.63, 0.126, 0.006666, 0.00168214);
+    //a.initialize(256, listOfPoints, variantList[0].size(), variantList[0], 0.5, 0.0, 0.0, 1.0);
     //cout << "HERE1.105" << endl;
 	int counter = 0;
     //a.printAdj();
@@ -230,12 +297,22 @@ vector<int> simulation(string outfile) {
     deathLog.push_back(0);
     lifeLog.push_back(256);
     TotalNewInfectLog.push_back(1);
+	TotalNewDeathLog.push_back(0);
+	TotalNewRecovLog.push_back(0);
+    TotalNewInfectLog.push_back(a.newInfectionCount());
+	TotalNewDeathLog.push_back(a.newDeathCount());
+	TotalNewRecovLog.push_back(a.newRecoveriesCount());
+	TotalNewVariantInfectedLog->push_back(a.getnewVariantInfectionsCount());
     //cout << 1 << endl;
 
     int max_timeSteps = 1000;
     int count = 0;
     double variantProb = 0.01;
-	int newInfectedDate = 5;
+	// vector < int > newInfectedDate;
+// 	newInfectedDate.push_back(5);
+// 	newInfectedDate.push_back(10);
+// 	newInfectedDate.push_back(15);
+	//newInfectedDate.push_back(20);
 
     //cout << "HERE1.1" << endl;
 
@@ -252,11 +329,14 @@ vector<int> simulation(string outfile) {
     infectedLog.push_back(stats[0]);
     deathLog.push_back(stats[1]);
     lifeLog.push_back(stats[2]);
-    sum = 0;
-    for (int x = 3; x < stats.size(); x++) {
-        sum = sum + stats[x];
-    }
-    TotalNewInfectLog.push_back(sum);
+    //sum = 0;
+    // for (int x = 3; x < stats.size(); x++) {
+//         sum = sum + stats[x];
+//     }
+    TotalNewInfectLog.push_back(a.newInfectionCount());
+	TotalNewDeathLog.push_back(a.newDeathCount());
+	TotalNewRecovLog.push_back(a.newRecoveriesCount());
+	TotalNewVariantInfectedLog->push_back(a.getnewVariantInfectionsCount());
     double variantTest = 0.0;
 
 //    cout << "HERE2" << endl;
@@ -278,15 +358,18 @@ vector<int> simulation(string outfile) {
             }
         }
         if (newVariantsFlag == 2) {
-            if (count == newInfectedDate) {
-                //cout << "Adding New Variant\n";
-                //variant2 = makeNewVariant(listOfPoints, immunityLength);
-				if(counter < variantList.size())
-				{
-					counter++;
-	                a.newVariant(variantList[counter]);
-				}
-            }
+			for(int x = 0; x < newInfectedDate.size(); x++)
+			{
+	            if (count == newInfectedDate[x]) {
+	                //cout << "Adding New Variant\n";
+	                //variant2 = makeNewVariant(listOfPoints, immunityLength);
+					if(counter < variantList.size())
+					{
+						counter++;
+		                a.newVariant(variantList[counter]);
+					}
+	            }
+			}
         }
         stats = a.nextTimeStep();
 		//cout << "Here\n";
@@ -310,15 +393,19 @@ vector<int> simulation(string outfile) {
 //             sum = sum + stats[x];
 //         }
 //         TotalNewInfectLog.push_back(sum);
-		TotalNewInfectLog.push_back(stats[0]);
+		TotalNewInfectLog.push_back(a.newInfectionCount());
+		TotalNewDeathLog.push_back(a.newDeathCount());
+		TotalNewRecovLog.push_back(a.newRecoveriesCount());
+		TotalNewVariantInfectedLog->push_back(a.getnewVariantInfectionsCount());
+		
 		//cout << sum << "\n";
 
         count++;
 		//cout << count << "\n";
     }
 	
-    int final1 = a.numOfVariants();
-	cout << "Here\n";
+    *final1 = a.numOfVariants();
+	//cout << "Here\n";
 	ofstream vals;
     vals.open(outfile, ios::out|ios::app);
 	if (vals.is_open())
@@ -327,41 +414,95 @@ vector<int> simulation(string outfile) {
 
         cout << '1' << " ";
         vals << '1' << " ";
-	    for (int x = 1; x < infectedLog.size(); x++) {
+	    for (int x = 1; x < TotalNewInfectLog.size(); x++) {
 	        if (infectedLog[x] > 0) {
-	            cout << infectedLog[x] << " ";
-				vals << infectedLog[x] << " ";
+	            cout << TotalNewInfectLog[x] << " ";
+				vals << TotalNewInfectLog[x] << " ";
 	            //vals << val << " ";
 	        }
 	    }
         cout << endl;
         vals << endl;
 		
-        cout << deathLog[0] << " ";
-        vals << deathLog[0] << " ";
-	    for (int x = 1; x < deathLog.size(); x++) {
-	        if (deathLog[x] > 0) {
-	            cout << deathLog[x] - deathLog[x-1] << " ";
-				vals << deathLog[x] - deathLog[x-1] << " ";
-	            //vals << val << " ";
-	        }
+        cout << TotalNewDeathLog[0] << " ";
+        vals << TotalNewDeathLog[0] << " ";
+	    for (int x = 1; x < TotalNewDeathLog.size(); x++) {
+	        cout << TotalNewDeathLog[x] << " ";
+			vals << TotalNewDeathLog[x] << " ";
 	    }
         cout << endl;
         vals << endl;	
 		
-		vals << "__" << endl;
-	    vals.close();
-		cout << "Here3\n";
-	  }
-	cout << "Here2\n";
+        cout << TotalNewRecovLog[0] << " ";
+        vals << TotalNewRecovLog[0] << " ";
+	    for (int x = 1; x < TotalNewRecovLog.size(); x++) {
+	        cout << TotalNewRecovLog[x] << " ";
+			vals << TotalNewRecovLog[x] << " ";
+	    }
+        cout << endl;
+        vals << endl;	
+		
+		cout << "___" << endl;
+		vals << "___" << endl;
+		
+		
+		//vals.open(Outputfile, ios::out|ios::app);
+			//printVector(variantList[0]);
+		cout << "*577+-" << endl;
+		vals << "*577+-" << endl;
+			for(int x = 0; x < *final1; x++)
+			{
+				printVector(variantList[x]);
+				printVector(variantList[x], vals);
 
-    // printVector(infectedLog);
-    //printVector(deathLog);
-    // printVector(lifeLog);
-	//cout << final1 << "\n";
-    //writeToFile(infectedLog, "InfectedLog.txt");
-    //writeToFile(deathLog, "DeathLog.txt");
-    //writeToFile(lifeLog, "LifeLog.txt");
+				if(x== 0)
+				{
+					cout << "Start Date: " << 0 << "\n";
+					vals << "Start Date: " << 0 << "\n";
+				}
+				if(x > 0)
+				{
+					cout << "Start Date: " << newInfectedDate[x-1] << "\n";
+					vals << "Start Date: " << newInfectedDate[x-1] << "\n";
+				}
+				if(x > 0)
+				{
+					for(int q = 0; q < newInfectedDate[x-1]; q++)
+					{
+						cout << 0 << " ";
+						vals << 0 << " ";
+					}
+				}
+
+				for(int y = 0; y < TotalNewVariantInfectedLog->size(); y++)
+				{
+					if(x == 0)
+					{
+						cout << (*TotalNewVariantInfectedLog)[y][x] << " ";
+						vals << (*TotalNewVariantInfectedLog)[y][x] << " ";
+					}
+					if(x > 0)
+					{
+						if(x < (*TotalNewVariantInfectedLog)[y].size())
+						{
+							cout << (*TotalNewVariantInfectedLog)[y][x] << " ";
+							vals << (*TotalNewVariantInfectedLog)[y][x] << " ";
+						}
+					}
+
+				}
+				cout << "\n";
+				vals << "\n";
+			}
+			
+		cout << "*577+-" << endl;
+		vals << "*577+-" << endl;
+		cout << "___" << endl;
+		vals << "___" << endl;
+		//vals.close();
+		
+	    vals.close();
+	  }
     return (TotalNewInfectLog);
 }
 

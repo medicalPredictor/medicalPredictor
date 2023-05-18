@@ -7,11 +7,51 @@ ___
 DATA.DAT
 [Name for experiment]
 ___
-For each epidemic (simulation):
-    The Overall Epidemic Profile:
-        For each time step:
-            [number of new infections, number of new deaths, number of recoveries]
-    Deliminator for end of profile: *577+-
-    For each variant:
-        [variant string, start date, [variant profile]]
-    Deliminator for end of epi: %$@*^$
+[Epi 1 New Infections]
+[Epi 1 New Deaths]
+[Epi 1 New Recoveries]
+[Epi 1 Variant 1 Variant String]
+Start Date: [Epi 1 Variant 1 Start Date]
+[Epi 1 Variant 1 Profile]
+[Epi 1 Variant 2 Variant String]
+Start Date: [Epi 1 Variant 2 Start Date]
+[Epi 1 Variant 2 Profile]
+[Epi 1 Variant 3 Variant String]
+Start Date: [Epi 1 Variant 3 Start Date]
+[Epi 1 Variant 3 Profile]
+[Epi 1 Variant ... Variant String]
+Start Date: [Epi 1 Variant ... Start Date]
+[Epi 1 Variant ... Profile]
+___
+[Epi 2 New Infections]
+[Epi 2 New Deaths]
+[Epi 2 New Recoveries]
+[Epi 2 Variant 1 Variant String]
+Start Date: [Epi 2 Variant 1 Start Date]
+[Epi 2 Variant 1 Profile]
+[Epi 2 Variant 2 Variant String]
+Start Date: [Epi 2 Variant 2 Start Date]
+[Epi 2 Variant 2 Profile]
+[Epi 2 Variant 3 Variant String]
+Start Date: [Epi 2 Variant 3 Start Date]
+[Epi 2 Variant 3 Profile]
+[Epi 2 Variant ... Variant String]
+Start Date: [Epi 2 Variant ... Start Date]
+[Epi 2 Variant ... Profile]
+___
+[Epi ... New Infections]
+[Epi ... New Deaths]
+[Epi ... New Recoveries]
+[Epi ... Variant 1 Variant String]
+Start Date: [Epi ... Variant 1 Start Date]
+[Epi ... Variant 1 Profile]
+[Epi ... Variant 2 Variant String]
+Start Date: [Epi ... Variant 2 Start Date]
+[Epi ... Variant 2 Profile]
+[Epi ... Variant 3 Variant String]
+Start Date: [Epi ... Variant 3 Start Date]
+[Epi ... Variant 3 Profile]
+[Epi ... Variant ... Variant String]
+Start Date: [Epi ... Variant ... Start Date]
+[Epi ... Variant ... Profile]
+___

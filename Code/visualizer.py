@@ -1,21 +1,36 @@
-import tkinter as tk
+from tkinter import *
+from PIL import ImageTk, Image
 import matplotlib.pyplot as plt
-import numpy as np
-import os 
 
-# Init windows and titles
-params = tk.Tk()
-params.title("Parameters")
-averagedSims = tk.Tk()
+
+params = Tk() # The first window
+
+# Makes a new window with an image in the middle
+averagedSims = Toplevel()
 averagedSims.title("Averaged Simulations")
+averagedSims.geometry("1000x800")
+avgImage = Frame(averagedSims,width = 700, height = 600)
+avgImage.pack() # 
+avgImage.place(anchor = 'center', relx=0.5, rely = 0.5)
 
-# Test graph data
-testData = np.arange(0.0,2.0,0.01)
-# Make/plot/save data
-fig,ax = plt.subplots()
-ax.plot(testData,testData) # More useful tags if needed
-ax.set(xlabel = 'Beep', ylabel ='Boop', title = 'Testing') # fig is now our plot
-fig.savefig("test.png")
+# Pull from file
+data = open("DATA.DAT",'r') # check data example file to make sure, should be I D R then varients
+contents = data.read()
+# Break into experiments
+# Break into individual stuffs  
+print(contents)
+
+# testData = []
+# [testData for x in range(100)]
+# plt.scatter(testData,testData,'ro')
+# plt.savefig("testData.png")
+
+# Actually draws the graph
+avgGraph = ImageTk.PhotoImage(Image.open("testData.png"))
+avgLabel = Label(avgImage, image = avgGraph)
+avgLabel.pack()
+
+
 
 # Get image for gui
 pic = tk.PhotoImage(file="test.png")

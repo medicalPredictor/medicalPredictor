@@ -17,6 +17,7 @@ int Graph::initialize(int nn1, vector<int> bitspray, int immunityStringSize, vec
 deathProb1) {
     nn = nn1;
     int counter = 0;
+	
     vector<int> holder;
     for (int x = 0; x < nn; x++) {
         holder.push_back(0);
@@ -69,7 +70,10 @@ deathProb1) {
     }
 
     deathcount = 0;
-    newInfections=1;
+    newInfections=0;
+	newDeaths = 0;
+	newRecoveries = 0;
+	newinfectedbyVariant.push_back(0);
 
     return (0);
 }
@@ -118,6 +122,13 @@ int Graph::numOfVariants() {
 vector<int> Graph::nextTimeStep() {
     //cout << "Inside nextTimeStep\n";
     vector<int> stats;
+    newInfections=0;
+	newDeaths = 0;
+	newRecoveries = 0;
+	for(int x = 0; x < newinfectedbyVariant.size(); x++)
+	{
+		newinfectedbyVariant[x] = 0;
+	}
     int deaths = 0;
     int life = 0;
     vector<int> infected;
@@ -166,6 +177,12 @@ int Graph::addVariant(vector<int> bits, int len) // TODO: Remove len
         variant.push_back(bits[x]);
     }
     VariantDic.push_back(variant);
+	//newinfectedbyVariant[0];
+	//newinfectedbyVariant.push_back(0);
+	// cout << "IN ADD VARIANT\n";
+	// cout <<  VariantDic.size() << "\n";
+	// cout <<  newinfectedbyVariant.size() << "\n";
+	// cout << "END ADD VARIANT\n";
     return (0);
 }
 
@@ -295,6 +312,8 @@ int Graph::infect(int node, int variant) {
                 immunityDic[node][x] = immunityDic[node][x] + VariantDic[variant][x];
             }
             variantHistory[node].push_back(variant + 1);
+			newInfections++;
+			newinfectedbyVariant[variant]++;
             return (0);
         }
     }
@@ -316,6 +335,7 @@ int Graph::unInfect(int node) {
         state[node] = -1;
         infected[node] = 0;
     }
+	newRecoveries++;
     return (0);
 }
 
@@ -500,6 +520,7 @@ int Graph::recoveries() {
  * @return          If the program completes successfully, returns 0.
  */
 int Graph::death(int node) {
+	
     if ((node < 0) || (node >= nn)) {
         cout << "Error. Node outside Bounds.\n";
         return (2);
@@ -509,6 +530,7 @@ int Graph::death(int node) {
         infected[node] = 0;
         deathcount++;
     }
+	newDeaths++;
     return (0);
 }
 
@@ -630,6 +652,7 @@ int Graph::newVariant(vector<int> bits) {
             return (1);
         }
     }
+	newinfectedbyVariant.push_back(1);
     return (0);
 }
 
@@ -656,4 +679,21 @@ void Graph::kill() {
 //            death(x);
 //        }
 //    }
+}
+
+int Graph::newInfectionCount(){
+	return(newInfections);
+}
+
+int Graph::newDeathCount(){
+	return(newDeaths);	
+}
+
+int Graph::newRecoveriesCount(){
+	return(newRecoveries);
+}
+
+vector <int> Graph::getnewVariantInfectionsCount()
+{
+	return(newinfectedbyVariant);
 }
