@@ -27,7 +27,6 @@ def displayParams(winTitle,windSize,pic):
 # Data file should be in format in github. Pull up example file if needed
 # param object has the following structure; first thing is the name, next thing is a 0:n array of params for the first sim
 def pullParams(filename, paramNum = 6, delimiters = ["___"]):
-    # Pull from file
     data = open(filename,'r')
     contents = data.readlines()
     params = []
@@ -41,7 +40,7 @@ def pullParams(filename, paramNum = 6, delimiters = ["___"]):
                 firstDelim = False
             temp = [] # dummy varb to clean data 
             for thing in contents[idx+1:idx+paramNum+1]: # these are all the relevant params in the file
-                thing = thing[:-1]
+                thing = thing.rstrip()
                 thing = thing.split(" ")
                 thing[1] = float(thing[1])
                 temp.append(thing)
