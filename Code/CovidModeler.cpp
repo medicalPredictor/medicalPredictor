@@ -246,7 +246,7 @@ vector<int> simulation(string outfile, std::vector < vector<int> > variantList, 
 
     //tests();
 	//ofstream vals;
-	cout << (*TotalNewVariantInfectedLog).size() << "\n";
+	//cout << (*TotalNewVariantInfectedLog).size() << "\n";
 	while((*TotalNewVariantInfectedLog).size() > 0)
 	{
 		while((*TotalNewVariantInfectedLog)[(*TotalNewVariantInfectedLog).size()-1].size() > 0)
@@ -255,7 +255,7 @@ vector<int> simulation(string outfile, std::vector < vector<int> > variantList, 
 		}
 		(*TotalNewVariantInfectedLog).pop_back();
 	}
-	cout << (*TotalNewVariantInfectedLog).size() << "\n";
+	//cout << (*TotalNewVariantInfectedLog).size() << "\n";
     int newVariantsFlag = 2;
 //    srand48((int) time(NULL));
 //	srand((int) time(NULL));
@@ -264,12 +264,6 @@ vector<int> simulation(string outfile, std::vector < vector<int> > variantList, 
     ReadData("../bs_test.txt", &listOfPoints, 100000);
 	ReadData2("../variants.txt", &variantList, 100000);
 	
-
-    //cout << "Here\n";
-	//printVector(variantList[0]);
-	//cout << "\n";
-	//printVector(variantList[1]);
-	//printVector(variantList[2]);
 
     vector<int> infectedLog;
     vector<int> deathLog;
@@ -308,13 +302,6 @@ vector<int> simulation(string outfile, std::vector < vector<int> > variantList, 
     int max_timeSteps = 1000;
     int count = 0;
     double variantProb = 0.01;
-	// vector < int > newInfectedDate;
-// 	newInfectedDate.push_back(5);
-// 	newInfectedDate.push_back(10);
-// 	newInfectedDate.push_back(15);
-	//newInfectedDate.push_back(20);
-
-    //cout << "HERE1.1" << endl;
 
     vector<int> stats;
     stats = a.nextTimeStep();
@@ -322,24 +309,16 @@ vector<int> simulation(string outfile, std::vector < vector<int> > variantList, 
     for (auto &val: infectedLog) {
         sum += val;
     }
-//    printVector(stats);
-//    cout << "HERE1.15" << endl;
-    //cout << stats[0] << endl;
-//    cout << "HERE1.17" << endl;
+
     infectedLog.push_back(stats[0]);
     deathLog.push_back(stats[1]);
     lifeLog.push_back(stats[2]);
-    //sum = 0;
-    // for (int x = 3; x < stats.size(); x++) {
-//         sum = sum + stats[x];
-//     }
+
     TotalNewInfectLog.push_back(a.newInfectionCount());
 	TotalNewDeathLog.push_back(a.newDeathCount());
 	TotalNewRecovLog.push_back(a.newRecoveriesCount());
 	TotalNewVariantInfectedLog->push_back(a.getnewVariantInfectionsCount());
     double variantTest = 0.0;
-
-//    cout << "HERE2" << endl;
 
     std::vector<int> variant2;
 
@@ -348,8 +327,6 @@ vector<int> simulation(string outfile, std::vector < vector<int> > variantList, 
             variantTest = drand48();
             if (variantTest < variantProb) {
                 cout << "Adding New Variant\n";
-                //variant2 = makeNewVariant(listOfPoints, immunityLength);
-                //a.newVariant(variant2);
 				if(counter < variantList.size())
 				{
 					counter++;
@@ -410,7 +387,7 @@ vector<int> simulation(string outfile, std::vector < vector<int> > variantList, 
     vals.open(outfile, ios::out|ios::app);
 	if (vals.is_open())
 	  {
-		cout << "HERe\n";
+		//cout << "HERe\n";
 
         cout << '1' << " ";
         vals << '1' << " ";
@@ -448,8 +425,8 @@ vector<int> simulation(string outfile, std::vector < vector<int> > variantList, 
 		
 		//vals.open(Outputfile, ios::out|ios::app);
 			//printVector(variantList[0]);
-		cout << "*577+-" << endl;
-		vals << "*577+-" << endl;
+		//cout << "*577+-" << endl;
+		//vals << "*577+-" << endl;
 			for(int x = 0; x < *final1; x++)
 			{
 				printVector(variantList[x]);
@@ -495,8 +472,8 @@ vector<int> simulation(string outfile, std::vector < vector<int> > variantList, 
 				vals << "\n";
 			}
 			
-		cout << "*577+-" << endl;
-		vals << "*577+-" << endl;
+		//cout << "*577+-" << endl;
+		//vals << "*577+-" << endl;
 		cout << "___" << endl;
 		vals << "___" << endl;
 		//vals.close();
