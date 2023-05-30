@@ -48,6 +48,18 @@ deathProb1) {
 //    deathProb = 0.00168214; // TODO: Update so that it is an argument.
 
     immunitySize = immunityStringSize;
+	while(VariantDic.size() > 0)
+	{
+		VariantDic.pop_back();
+	}
+	while(immunityDic.size() > 0)
+	{
+		immunityDic.pop_back();
+	}
+	while(variantHistory.size() > 0)
+	{
+		variantHistory.pop_back();
+	}
     addVariant(bitspray2, immunitySize);
 
     vector<int> holder2;
@@ -73,36 +85,40 @@ deathProb1) {
     newInfections=0;
 	newDeaths = 0;
 	newRecoveries = 0;
+	while(newinfectedbyVariant.size() > 0)
+	{
+		newinfectedbyVariant.pop_back();
+	}
 	newinfectedbyVariant.push_back(0);
 
     return (0);
 }
 
-int Graph::simulateEpidemic(double infProb, double recoveryProb, double decayProb, double dieProb){
-    // TODO: Incomplete, so complete it!
-    vector<int> listOfBits;
-    vector<int> curS, curI, curR, newS, newI, netNewI, newR;
-
-    infect(0,0);
-    curS.push_back(nn - 1);
-    newS.push_back(-1);
-    curI.push_back(1);
-    newI.push_back(1);
-    netNewI.push_back(1);
-    curR.push_back(0);
-    newR.push_back(0);
-
-    vector<int> dailyStats = nextTimeStep();
-//    newS.push_back(curS.end() - )
-    curS.push_back(nn - dailyStats[1] - dailyStats[2]); // Susceptible = total - infected - dead
-//    newI.push_back(curI.back() - dailyStats[0]); // New Infected (dead) = old removed - current removed
-
-curI.push_back(dailyStats[1]); // Currently Infected
-    newR.push_back(curR.back() - dailyStats[2]); // New Removed (dead) = old removed - current removed
-    curR.push_back(dailyStats[2]); // Currently Removed (dead)
-
-    return(0);
-}
+// int Graph::simulateEpidemic(double infProb, double recoveryProb, double decayProb, double dieProb){
+//     // TODO: Incomplete, so complete it!
+//     vector<int> listOfBits;
+//     vector<int> curS, curI, curR, newS, newI, netNewI, newR;
+//
+//     infect(0,0);
+//     curS.push_back(nn - 1);
+//     newS.push_back(-1);
+//     curI.push_back(1);
+//     newI.push_back(1);
+//     netNewI.push_back(1);
+//     curR.push_back(0);
+//     newR.push_back(0);
+//
+//     vector<int> dailyStats = nextTimeStep();
+// //    newS.push_back(curS.end() - )
+//     curS.push_back(nn - dailyStats[1] - dailyStats[2]); // Susceptible = total - infected - dead
+// //    newI.push_back(curI.back() - dailyStats[0]); // New Infected (dead) = old removed - current removed
+//
+// curI.push_back(dailyStats[1]); // Currently Infected
+//     newR.push_back(curR.back() - dailyStats[2]); // New Removed (dead) = old removed - current removed
+//     curR.push_back(dailyStats[2]); // Currently Removed (dead)
+//
+//     return(0);
+// }
 
 
 /**
@@ -546,20 +562,12 @@ int Graph::ImmunityDecay() {
     for (int x = 0; x < nn; x++) {
         if ((!variantHistory[x].empty()) && (state[x] != -2)) {
             if (variantHistory[x][0] != state[x]) {
-                 //rand1 = (drand48() % 100) / 100.0;
 				rand1 = drand48();
                 if ( rand1 < decProb) {
                     removeImmunity(x);
                 }
             }
         }
-//        {
-//             rand1 = ( drand48() % 100) / 100.0;
-//		 	   rand1 = drand48();
-//            if ( rand1 < decProb) {
-//                removeImmunity(x);
-//            }
-//        }
     }
     return (0);
 }
@@ -576,7 +584,6 @@ vector<int> Graph::runVariant(int variant) {
     vector<int> Ac = calcAc(variant);
     vector<double> infectProb = infectionProb(Ac, variant);
     for (int x = 0; x < nn; x++) {
-         //rands = ( drand48() % 100) / 100.0;
 		rands = drand48();
         if ( rands < infectProb[x]) {
             newInfections.push_back(1);
@@ -673,12 +680,6 @@ void Graph::kill() {
             }
         }
     }
-
-//    for (int x = 0; x < nn; x++) {
-//        if (state[x] > 0) {
-//            death(x);
-//        }
-//    }
 }
 
 int Graph::newInfectionCount(){
@@ -696,4 +697,330 @@ int Graph::newRecoveriesCount(){
 vector <int> Graph::getnewVariantInfectionsCount()
 {
 	return(newinfectedbyVariant);
+}
+
+void Graph::printLog(vector<int> TotalNewInfectLog, string outfile)
+{
+	ofstream vals;
+    vals.open(outfile, ios::out|ios::app);
+    for (int x = 0; x < TotalNewInfectLog.size(); x++) {
+        //if (infectedLog[x] > 0) {
+            cout << TotalNewInfectLog[x] << " ";
+			vals << TotalNewInfectLog[x] << " ";
+			//}
+    }
+    cout << endl;
+    vals << endl;
+	vals.close();
+}
+
+void Graph::printVariantLog(std::vector < vector<int> > variantList, string outfile, vector < int > newInfectedDate, vector < vector < int > > * TotalNewVariantInfectedLog, int * final1)
+{
+	ofstream vals;
+    vals.open(outfile, ios::out|ios::app);
+	for(int x = 0; x < *final1; x++)
+	{
+		printVector(variantList[x]);
+		printVector(variantList[x], vals);
+
+		if(x== 0)
+		{
+			cout << "Start Date: " << 0 << "\n";
+			vals << "Start Date: " << 0 << "\n";
+		}
+		if(x > 0)
+		{
+			cout << "Start Date: " << newInfectedDate[x-1] << "\n";
+			vals << "Start Date: " << newInfectedDate[x-1] << "\n";
+		}
+		if(x > 0)
+		{
+			for(int q = 0; q < newInfectedDate[x-1]; q++)
+			{
+				cout << 0 << " ";
+				vals << 0 << " ";
+			}
+		}
+
+		for(int y = 0; y < TotalNewVariantInfectedLog->size(); y++)
+		{
+			if(x == 0)
+			{
+				cout << (*TotalNewVariantInfectedLog)[y][x] << " ";
+				vals << (*TotalNewVariantInfectedLog)[y][x] << " ";
+			}
+			if(x > 0)
+			{
+				if(x < (*TotalNewVariantInfectedLog)[y].size())
+				{
+					cout << (*TotalNewVariantInfectedLog)[y][x] << " ";
+					vals << (*TotalNewVariantInfectedLog)[y][x] << " ";
+				}
+			}
+
+		}
+		cout << "\n";
+		vals << "\n";
+	}
+	
+	cout << "___" << endl;
+	vals << "___" << endl;
+	//ofstream vals;
+    vals.close();
+}
+
+/**
+ * Prints an integer vector. Mostly for debugging purposes.
+ *
+ * @param vec  A vector of intergers of any length.
+ * @return          If the program completes successfully, returns 0.
+ */
+int Graph::printVector(vector<int> vec) {
+    for (int y = 0; y < vec.size(); y++) {
+        cout << vec[y] << " ";
+    }
+    cout << "\n";
+    return (0);
+}
+
+/**
+ * Prints an integer vector to stream. Mostly for debugging purposes.
+ *
+ * @param vec  A vector of intergers of any length.
+ * @return          If the program completes successfully, returns 0.
+ */
+int Graph::printVector(vector<int> vec, ofstream & vals) {
+    for (int y = 0; y < vec.size(); y++) {
+        vals << vec[y] << " ";
+    }
+    vals << "\n";
+    return (0);
+}
+
+/**
+ * Main used to testing purposes. Can be removed later.
+ *
+ * @return          If the program completes successfully, returns 0.
+ */
+vector<int> Graph::simulation(string outfile, std::vector < vector<int> > variantList, int * final1, vector < int > newInfectedDate, vector < vector < int > > * TotalNewVariantInfectedLog) {
+    //vector< vector < int > All_the_simulations;
+
+    //tests();
+	//ofstream vals;
+	//cout << (*TotalNewVariantInfectedLog).size() << "\n";
+	while((*TotalNewVariantInfectedLog).size() > 0)
+	{
+		while((*TotalNewVariantInfectedLog)[(*TotalNewVariantInfectedLog).size()-1].size() > 0)
+		{
+			(*TotalNewVariantInfectedLog)[(*TotalNewVariantInfectedLog).size()-1].pop_back();
+		}
+		(*TotalNewVariantInfectedLog).pop_back();
+	}
+	//cout << (*TotalNewVariantInfectedLog).size() << "\n";
+    int newVariantsFlag = 2;
+//    srand48((int) time(NULL));
+//	srand((int) time(NULL));
+    std::vector<int> listOfPoints;
+	//std::vector < vector<int> > variantList;
+    //ReadData("../bs_test.txt", &listOfPoints, 100000);
+	//ReadData2("../variants.txt", &variantList, 100000);
+	
+
+    vector<int> infectedLog;
+    vector<int> deathLog;
+    vector<int> lifeLog;
+    vector<int> TotalNewInfectLog;
+	vector<int> TotalNewDeathLog;
+	vector<int> TotalNewRecovLog;
+	//vector < vector < int > > TotalNewVariantInfectedLog;
+    int immunityLength = 7;
+
+    //cout << "HERE1" << endl;
+
+    //Graph a;
+   // a.initialize(256, listOfPoints, variantList[0].size(), variantList[0], 0.63, 0.126, 0.006666, 0.00168214);
+    //a.initialize(256, listOfPoints, variantList[0].size(), variantList[0], 0.5, 0.0, 0.0, 1.0);
+    //cout << "HERE1.105" << endl;
+	int counter = 0;
+    //a.printAdj();
+    infect(0, 0);
+    vector<int> infected;
+    vector<int> states;
+    infected = getInfected();
+    //printVector(infected);
+    infectedLog.push_back(1);
+    deathLog.push_back(0);
+    lifeLog.push_back(256);
+    TotalNewInfectLog.push_back(1);
+	TotalNewDeathLog.push_back(0);
+	TotalNewRecovLog.push_back(0);
+    TotalNewInfectLog.push_back(newInfectionCount());
+	TotalNewDeathLog.push_back(newDeathCount());
+	TotalNewRecovLog.push_back(newRecoveriesCount());
+	TotalNewVariantInfectedLog->push_back(getnewVariantInfectionsCount());
+    //cout << 1 << endl;
+
+    int max_timeSteps = 1000;
+    int count = 0;
+    double variantProb = 0.01;
+
+    vector<int> stats;
+    stats = nextTimeStep();
+    int sum = 0;
+    for (auto &val: infectedLog) {
+        sum += val;
+    }
+
+    infectedLog.push_back(stats[0]);
+    deathLog.push_back(stats[1]);
+    lifeLog.push_back(stats[2]);
+
+    TotalNewInfectLog.push_back(newInfectionCount());
+	TotalNewDeathLog.push_back(newDeathCount());
+	TotalNewRecovLog.push_back(newRecoveriesCount());
+	TotalNewVariantInfectedLog->push_back(getnewVariantInfectionsCount());
+    double variantTest = 0.0;
+
+    std::vector<int> variant2;
+
+    while ((stats[0] > 0) && (stats[0] < 256) && (count < max_timeSteps)) {
+        if (newVariantsFlag == 1) {
+            variantTest = drand48();
+            if (variantTest < variantProb) {
+                cout << "Adding New Variant\n";
+				if(counter < variantList.size())
+				{
+					counter++;
+	                newVariant(variantList[counter]);
+				}
+            }
+        }
+        if (newVariantsFlag == 2) {
+			for(int x = 0; x < newInfectedDate.size(); x++)
+			{
+	            if (count == newInfectedDate[x]) {
+					if(counter < variantList.size())
+					{
+						counter++;
+		                newVariant(variantList[counter]);
+					}
+	            }
+			}
+        }
+        stats = nextTimeStep();
+        sum = 0;
+        for (auto &val: infectedLog) {
+            sum += val;
+        }
+        //states = a.getState();
+
+        infectedLog.push_back(stats[0]);
+        deathLog.push_back(stats[1]);
+        lifeLog.push_back(stats[2]);
+		TotalNewInfectLog.push_back(newInfectionCount());
+		TotalNewDeathLog.push_back(newDeathCount());
+		TotalNewRecovLog.push_back(newRecoveriesCount());
+		TotalNewVariantInfectedLog->push_back(getnewVariantInfectionsCount());
+
+        count++;
+    }
+	
+    *final1 = VariantDic.size();
+	//cout << *final1 << "\n";
+	
+	printLog(TotalNewInfectLog, outfile);
+	printLog(TotalNewDeathLog, outfile);
+	printLog(TotalNewRecovLog, outfile);
+	ofstream vals;
+    vals.open(outfile, ios::out|ios::app);
+	if (vals.is_open())
+	{
+		cout << "___" << endl;
+		vals << "___" << endl;
+		
+		vals.close();
+	}
+	printVariantLog(variantList, outfile, newInfectedDate, TotalNewVariantInfectedLog, final1);
+    return (TotalNewInfectLog);
+}
+
+/**
+ * Reads in a txt file and saves to the vector of ints passed to the function.
+ *
+ * @param input1  name of file to be imported.
+ * @param listOfPoints  pointer to a vector of integers to be populated with the information from the input.
+ * @param linesize  Number of characters expected in each line of the input file.
+ * @return        
+ */
+void Graph::ReadData(string input1, std::vector<int> *listOfPoints, int linesize) {//read in the data
+
+    fstream input;
+    char buf1[linesize];
+    string buf2;
+    string line;
+
+    string inputFile = input1;
+
+    std::vector<int> out;
+    input.open(inputFile, ios::in);
+    input.getline(buf1, linesize); //Get first line
+    line = buf1;
+    tokenize(line, '\t', &out);
+    (*listOfPoints) = out;
+    input.close();
+}
+
+/**
+ * Reads in a txt file and saves to the vector of ints passed to the function.
+ *
+ * @param input1  name of file to be imported.
+ * @param listOfPoints  pointer to a vector of integers to be populated with the information from the input.
+ * @param linesize  Number of characters expected in each line of the input file.
+ * @return        
+ */
+void Graph::ReadData2(string input1, std::vector <std::vector<int> > *listOfPoints, int linesize) {//read in the data
+
+    fstream input;
+    char buf1[linesize];
+    string buf2;
+    string line;
+
+    string inputFile = input1;
+
+    std::vector<int> out;
+    input.open(inputFile, ios::in);
+	
+	while(input.getline(buf1, linesize))
+	{
+		line = buf1;
+	    tokenize(line, '\t', &out);
+	    (*listOfPoints).push_back(out);
+		for(int x = out.size(); x > 0; x--)
+		{
+			out.pop_back();
+		}
+	}
+    input.close();
+}
+
+/**
+ * Takes a string of characters and delimits them by the passed delimiter. 
+ *
+ * @param str  string to be delimited.
+ * @param delim  character representing the delimiter to be used to break up the string.
+ * @param out pointer to a vector of ints that will be populated by the delimited string information.
+ * @return      
+ */
+void Graph::tokenize(std::string const str, const char delim, std::vector<int> *out) {
+    std::stringstream ss(str);
+    std::string s;
+    std::vector<string> temp;
+    while (std::getline(ss, s, delim)) {
+        temp.push_back(s);
+    }
+
+    for (int i = 0; i < temp.size(); ++i) {
+        int num = atoi(temp.at(i).c_str());
+        out->push_back(num);
+    }
 }

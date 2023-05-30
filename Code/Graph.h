@@ -44,7 +44,14 @@ public:
     void kill();
     vector<int> nextTimeStep();
     int numOfVariants();
-    int simulateEpidemic(double alpha, double recoveryProb, double decayProb, double deathProb);
+    vector<int> simulation(string outfile, std::vector < vector<int> > variantList, int * final1, vector < int > newInfectedDate, vector < vector < int > > * TotalNewVariantInfectedLog);
+	void printVariantLog(std::vector < vector<int> > variantList, string outfile, vector < int > newInfectedDate, vector < vector < int > > * TotalNewVariantInfectedLog, int * final1);
+	void printLog(vector<int> TotalNewInfectLog, string outfile);
+	int printVector(vector<int> vec);
+	int printVector(vector<int> vec, ofstream & vals);
+	void ReadData(string input1, std::vector<int> *listOfPoints, int linesize);
+	void ReadData2(string input1, std::vector <std::vector<int> > *listOfPoints, int linesize);
+	void tokenize(std::string const str, const char delim, std::vector<int> *out);
 
 private:
     //Variables go here
