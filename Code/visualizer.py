@@ -33,22 +33,30 @@ def pullSim(filename):
     # Now pull the time series data and keep it as a list    
     return()
 
-def pullParams(filename):
+def pullParams(filename, delimiters = ["___","Start date: "]):
+    f = open(filename,'r')
+    unrefined = f.readlines()
+    test = "Start Date: 34"
+    print(test[len(delimiters[1]):])
+
+
+    # for line in unrefined:
+    #     if line == 
     return()
 
 
 
 # Init of GUI
-params = tk.Tk() # The first window
-params.title("Medical Predictor Data Visualizer")
-title = 'Averaged Simulations'; size = '1000x800';pic = tk.PhotoImage(file="test.png")
-displayGraph(title,size,pic)
-title2 = 'Tomato'; size2 = '1000x800';pic2 = tk.PhotoImage(file="tomato.png")
-displayGraph(title2,size2,pic2)
-
-
+# params = tk.Tk() # The first window
+# params.title("Medical Predictor Data Visualizer")
+# title = 'Averaged Simulations'; size = '1000x800';pic = tk.PhotoImage(file="test.png")
+# displayGraph(title,size,pic)
+# title2 = 'Tomato'; size2 = '1000x800';pic2 = tk.PhotoImage(file="tomato.png")
+# displayGraph(title2,size2,pic2)
+data = pullParams("DATA.DAT")
+print(data)
 
 
 
 # Turn it on
-tk.mainloop()
+# tk.mainloop()
