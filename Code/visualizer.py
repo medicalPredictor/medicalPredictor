@@ -25,20 +25,34 @@ def displayParams(winTitle,windSize,pic):
 
 # want COMPLETE file name (DATA.DAT)
 # Data file should be in format in github. Pull up example file if needed
-def pullSim(filename):
+# param object has the following structure; first thing is the name, next thing is a 0:n array of params for the first sim
+def pullParams(filename, paramNum = 6, delimiters = ["___"]):
     # Pull from file
     data = open(filename,'r')
-    contents = data.read()
-    print(contents)
-    # Now pull the time series data and keep it as a list    
-    return()
+    contents = data.readlines()
+    params = []
+    delimLen= len(delimiters[0]) # dummy varb so we dont keep doing len checks
+    firstDelim = True
+
+    for idx,line in enumerate(contents): # walks through file
+        if (line[0:delimLen] == delimiters[0]): 
+            if firstDelim == True: # gets exp name
+                params.append(contents[idx-1][:-1])
+                firstDelim = False
+            temp = [] # dummy varb to clean data 
+            for thing in contents[idx+1:idx+paramNum+1]: # these are all the relevant params in the file
+                thing = thing[:-1]
+                thing = thing.split(" ")
+                thing[1] = float(thing[1])
+                temp.append(thing)
+            params.append(temp)        
+    return(params)
 
 def pullSim(filename, delimiters = ["___","Start date: "]):
     f = open(filename,'r')
-    unrefined = f.readlines()
+    contents = f.readlines()
     test = "Start Date: 34"
     print(test[len(delimiters[1]):])
-
 
     # for line in unrefined:
     #     if line == 
@@ -53,7 +67,9 @@ def pullSim(filename, delimiters = ["___","Start date: "]):
 # displayGraph(title,size,pic)
 # title2 = 'Tomato'; size2 = '1000x800';pic2 = tk.PhotoImage(file="tomato.png")
 # displayGraph(title2,size2,pic2)
+params = pullParams('README.DAT')
 data = pullSim("DATA.DAT")
+print(params)
 print(data)
 
 
