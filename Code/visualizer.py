@@ -33,7 +33,7 @@ def pullSim(filename):
     # Now pull the time series data and keep it as a list    
     return()
 
-def pullParams(filename, delimiters = ["___","Start date: "]):
+def pullSim(filename, delimiters = ["___","Start date: "]):
     f = open(filename,'r')
     unrefined = f.readlines()
     test = "Start Date: 34"
@@ -53,7 +53,7 @@ def pullParams(filename, delimiters = ["___","Start date: "]):
 # displayGraph(title,size,pic)
 # title2 = 'Tomato'; size2 = '1000x800';pic2 = tk.PhotoImage(file="tomato.png")
 # displayGraph(title2,size2,pic2)
-data = pullParams("DATA.DAT")
+data = pullSim("DATA.DAT")
 print(data)
 
 
