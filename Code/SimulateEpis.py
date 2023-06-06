@@ -170,7 +170,7 @@ def run_epi(adj: List[List[int]], p0, var_prob: float, death_prob: float, decay_
             pass
 
         for node in range(num_nodes):
-            if len(inf_logs[node]) and random.random() < decay_prob:
+            if len(inf_logs[node]) > 0 and random.random() < decay_prob:
                 to_rmv = inf_logs[node][0]
                 inf_logs[node] = inf_logs[node][1:]
                 immunity[node] = decay(variants[to_rmv], immunity[node])
