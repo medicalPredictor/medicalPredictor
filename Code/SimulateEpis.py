@@ -47,7 +47,7 @@ def get_variants():
     return variants
 
 
-def count_mismatches(immunity: [], variant: []):
+def count_mismatches(immunity: List, variant: List):
     potent_cnt = 0
     total_cnt = 0
     for val in variant:
@@ -74,7 +74,7 @@ def gen_new_variant(idx: int):
     return variants[idx]
 
 
-def StoI(variant_str: [], immunity_str: []):
+def StoI(variant_str: List, immunity_str: List):
     for idx in range(len(variant_str)):
         if variant_str[idx] == 1:
             immunity_str[idx] += 1
@@ -83,7 +83,7 @@ def StoI(variant_str: [], immunity_str: []):
     return immunity_str
 
 
-def decay(variant_str: [], immunity_str: []):
+def decay(variant_str: List, immunity_str: List):
     for idx in range(len(variant_str)):
         if variant_str[idx] == 1:
             immunity_str[idx] -= 1
@@ -93,7 +93,7 @@ def decay(variant_str: [], immunity_str: []):
 
 
 def run_epi(adj: List[List[int]], p0, var_prob: float, death_prob: float, decay_prob: float, rec_prob: float,
-            var_timesteps: [] or None):
+            var_timesteps: List or None):
     num_nodes = len(adj)
     var_count = 0
     n_state = [0 for _ in range(num_nodes)]
