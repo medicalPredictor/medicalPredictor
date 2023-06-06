@@ -2,8 +2,8 @@
 #include "CovidModeler.h"
 #include "Graph.h"
 
+
 int main() {
-	ofstream vals;
     srand48((int) time(nullptr));
     srand((int) time(nullptr));
     vector<vector<int> > All_the_simulations;
@@ -15,19 +15,30 @@ int main() {
 	newInfectedDate.push_back(10);
 	newInfectedDate.push_back(15);
 	string Outputfile = "./DATA.DAT";
+	ReadData2("../variants.txt", &variantList, 100000);
+	std::vector<int> listOfPoints;
+    ReadData("../bs_test.txt", &listOfPoints, 100000);
+	ReadData2("../variants.txt", &variantList, 100000);
+	vector<double> results;
+	results = runRun(Outputfile, sims, 0.63, 0.126, 0.006666, 0.00168214, listOfPoints, variantList, newInfectedDate);
+}
+
+vector<double> runRun(string Outputfile, int sims, double alpha, double recov, double decay, double death, std::vector<int> listOfPoints, std::vector < vector<int> > variantList, vector < int > newInfectedDate)
+{
+	ofstream vals;
+	int variants = 0;
+	vector<vector<int> > All_the_simulations;
+	vector < vector < int > > TotalNewVariantInfectedLog;
+	//string Outputfile = "./DATA.DAT";
     vals.open(Outputfile, ios::out);
 	vals << "Experiment 1" << endl;
 	vals << "__" << endl;
     vals.close();
-	ReadData2("../variants.txt", &variantList, 100000);
-	vector < vector < int > > TotalNewVariantInfectedLog;
 	Graph a;
-	std::vector<int> listOfPoints;
-    ReadData("../bs_test.txt", &listOfPoints, 100000);
-	ReadData2("../variants.txt", &variantList, 100000);
+	
     for (int y = 0; y < sims; y++) {
 		//a = new Graph;
-		a.initialize(256, listOfPoints, variantList[0].size(), variantList[0], 0.63, 0.126, 0.006666, 0.00168214);
+		a.initialize(256, listOfPoints, variantList[0].size(), variantList[0], alpha, recov, decay, death);
         All_the_simulations.push_back(a.simulation(Outputfile, variantList, &variants, newInfectedDate, &TotalNewVariantInfectedLog));
 		//delete a;
     }
@@ -57,6 +68,7 @@ int main() {
         }
     }
     vals.close();
+	return(results);
 }
 
 /**
