@@ -5,7 +5,7 @@
  * The goal of the evolved network will be to match a normalized epidemic profile from a larger network.
  * 
  * The command line parameters are as follows:
- * 1. Path to Origional Epidemic Profile
+ * 1. Path to Original Epidemic Profile
  * 2. Number of Nodes in Network
  * 3. Number of Runs
  * 4. Population Size
@@ -17,8 +17,8 @@
  * 10. Maximum Number of Mutations
  * 11. Seed for Random Number Generator
 */
-int main(int numArgs, char *arguements[]){
-    getCommandLineArgs(arguements);
+int main(int numArgs, char *arguments[]){
+    getCommandLineArgs(arguments);
     initializeSystem();
 
     for (int run = 1; run < numRuns + 1; numRuns++){

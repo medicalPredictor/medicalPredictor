@@ -1,0 +1,8 @@
+Goal: Evolve a smaller network which generates an average epidemic profile that matches the average epidemic profile seen on a larger network.
+
+Fitness Function: RMSE between the normalized larger network profile and smaller network profile.
+
+Tasks:
+Matt -> Write a header file called GraphTools.h with methods for generating different types of networks (bipartite, K-means, random, Power-law cluster, kaley, cycle, Watts–Strogatz, etc.) using the Graph class.  Finish the visualizer.
+Mike -> Continue working on the Evolver class (.h and .cpp) to implement the evolutionary algorithm.
+Rachel -> Consult for assistance on GraphTools.h and Evolver.
