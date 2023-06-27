@@ -20,26 +20,29 @@ int main() {
     ReadData("../bs_test.txt", &listOfPoints, 100000);
 	ReadData2("../variants.txt", &variantList, 100000);
 	vector<double> results;
-	results = runRun(Outputfile, sims, 0.63, 0.126, 0.006666, 0.00168214, listOfPoints, variantList, newInfectedDate);
+	results = runRun(Outputfile, sims, 0.63, 0.126, 0.006666, 0.00168214, listOfPoints, variantList, newInfectedDate, false);
 }
 
-vector<double> runRun(string Outputfile, int sims, double alpha, double recov, double decay, double death, std::vector<int> listOfPoints, std::vector < vector<int> > variantList, vector < int > newInfectedDate)
+vector<double> runRun(string Outputfile, int sims, double alpha, double recov, double decay, double death, std::vector<int> listOfPoints, std::vector < vector<int> > variantList, vector < int > newInfectedDate, bool FileFlag)
 {
 	ofstream vals;
 	int variants = 0;
 	vector<vector<int> > All_the_simulations;
 	vector < vector < int > > TotalNewVariantInfectedLog;
 	//string Outputfile = "./DATA.DAT";
-    vals.open(Outputfile, ios::out);
-	vals << "Experiment 1" << endl;
-	vals << "__" << endl;
-    vals.close();
+	if(FileFlag)
+	{
+	    vals.open(Outputfile, ios::out);
+		vals << "Experiment 1" << endl;
+		vals << "__" << endl;
+	    vals.close();
+	}
 	Graph a;
 	
     for (int y = 0; y < sims; y++) {
 		//a = new Graph;
 		a.initialize(256, listOfPoints, variantList[0].size(), variantList[0], alpha, recov, decay, death);
-        All_the_simulations.push_back(a.simulation(Outputfile, variantList, &variants, newInfectedDate, &TotalNewVariantInfectedLog));
+        All_the_simulations.push_back(a.simulation(Outputfile, variantList, &variants, newInfectedDate, &TotalNewVariantInfectedLog, FileFlag));
 		//delete a;
     }
     //All_the_simulations.push_back(simulation());

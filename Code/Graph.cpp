@@ -802,7 +802,7 @@ int Graph::printVector(vector<int> vec, ofstream & vals) {
  *
  * @return          If the program completes successfully, returns 0.
  */
-vector<int> Graph::simulation(string outfile, std::vector < vector<int> > variantList, int * final1, vector < int > newInfectedDate, vector < vector < int > > * TotalNewVariantInfectedLog) {
+vector<int> Graph::simulation(string outfile, std::vector < vector<int> > variantList, int * final1, vector < int > newInfectedDate, vector < vector < int > > * TotalNewVariantInfectedLog, bool FileFlag) {
     //vector< vector < int > All_the_simulations;
 
     //tests();
@@ -928,19 +928,22 @@ vector<int> Graph::simulation(string outfile, std::vector < vector<int> > varian
     *final1 = VariantDic.size();
 	//cout << *final1 << "\n";
 	
-	printLog(TotalNewInfectLog, outfile);
-	printLog(TotalNewDeathLog, outfile);
-	printLog(TotalNewRecovLog, outfile);
-	ofstream vals;
-    vals.open(outfile, ios::out|ios::app);
-	if (vals.is_open())
+	if(FileFlag)
 	{
-		cout << "___" << endl;
-		vals << "___" << endl;
+		printLog(TotalNewInfectLog, outfile);
+		printLog(TotalNewDeathLog, outfile);
+		printLog(TotalNewRecovLog, outfile);
+		ofstream vals;
+	    vals.open(outfile, ios::out|ios::app);
+		if (vals.is_open())
+		{
+			cout << "___" << endl;
+			vals << "___" << endl;
 		
-		vals.close();
+			vals.close();
+		}
+		printVariantLog(variantList, outfile, newInfectedDate, TotalNewVariantInfectedLog, final1);
 	}
-	printVariantLog(variantList, outfile, newInfectedDate, TotalNewVariantInfectedLog, final1);
     return (TotalNewInfectLog);
 }
 

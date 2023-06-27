@@ -5,6 +5,7 @@
 #include <iostream>
 #include <time.h>
 #include <fstream>
+#include "GraphGen.h"
 
 using namespace std;
 
@@ -44,7 +45,7 @@ public:
     void kill();
     vector<int> nextTimeStep();
     int numOfVariants();
-    vector<int> simulation(string outfile, std::vector < vector<int> > variantList, int * final1, vector < int > newInfectedDate, vector < vector < int > > * TotalNewVariantInfectedLog);
+    vector<int> simulation(string outfile, std::vector < vector<int> > variantList, int * final1, vector < int > newInfectedDate, vector < vector < int > > * TotalNewVariantInfectedLog, bool FileFlag);
 	void printVariantLog(std::vector < vector<int> > variantList, string outfile, vector < int > newInfectedDate, vector < vector < int > > * TotalNewVariantInfectedLog, int * final1);
 	void printLog(vector<int> TotalNewInfectLog, string outfile);
 	int printVector(vector<int> vec);
