@@ -3,25 +3,25 @@
 #include "Graph.h"
 
 
-int main() {
-    srand48((int) time(nullptr));
-    srand((int) time(nullptr));
-    vector<vector<int> > All_the_simulations;
-	std::vector < vector<int> > variantList;
-    int sims = 30;
-	int variants = 0;
-	vector < int > newInfectedDate;
-	newInfectedDate.push_back(5);
-	newInfectedDate.push_back(10);
-	newInfectedDate.push_back(15);
-	string Outputfile = "./DATA.DAT";
-	ReadData2("../variants.txt", &variantList, 100000);
-	std::vector<int> listOfPoints;
-    ReadData("../bs_test.txt", &listOfPoints, 100000);
-	ReadData2("../variants.txt", &variantList, 100000);
-	vector<double> results;
-	results = runRun(Outputfile, sims, 256, 7, 0.63, 0.126, 0.006666, 0.00168214, 0.01, listOfPoints, variantList, newInfectedDate, false);
-}
+//int main() {
+//    srand48((int) time(nullptr));
+//    srand((int) time(nullptr));
+//    vector<vector<int> > All_the_simulations;
+//	std::vector < vector<int> > variantList;
+//    int sims = 30;
+//	int variants = 0;
+//	vector < int > newInfectedDate;
+//	newInfectedDate.push_back(5);
+//	newInfectedDate.push_back(10);
+//	newInfectedDate.push_back(15);
+//	string Outputfile = "./DATA.DAT";
+//	ReadData2("../variants.txt", &variantList, 100000);
+//	std::vector<int> listOfPoints;
+//    ReadData("../bs_test.txt", &listOfPoints, 100000);
+//	ReadData2("../variants.txt", &variantList, 100000);
+//	vector<double> results;
+//	results = runRun(Outputfile, sims, 256, 7, 0.63, 0.126, 0.006666, 0.00168214, 0.01, listOfPoints, variantList, newInfectedDate, false);
+//}
 
 vector<double> runRun(string Outputfile, int sims, int nn, int variantSize, double alpha, double recov, double decay, double death, double variantProb, std::vector<int> listOfPoints, std::vector < vector<int> > variantList, vector < int > newInfectedDate, bool FileFlag)
 {

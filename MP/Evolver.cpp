@@ -21,8 +21,11 @@ int main(int numArgs, char *arguments[]){
     getCommandLineArgs(arguments);
     initializeSystem();
 
-    for (int run = 1; run < numRuns + 1; numRuns++){
-        
+    for (int run = 1; run < numRuns + 1; run++){
+        initializePopulation();
+        for (int mev = 0; mev < numGenerations; ++mev) {
+            matingEvent();
+        }
     }
 
     shutdownSystem();

@@ -7,9 +7,13 @@ include_directories(Code)
 
 add_executable(medicalPredictor
         Code/CovidModeler.cpp
+        Code/CovidModeler.h
         Code/Graph.cpp
         Code/Graph.h
-        Code/CovidModeler.h)
+        MP/SDA.h
+        MP/SDA.cpp
+        MP/Evolver.cpp
+        MP/Evolver.h)
 
 add_executable(SDATest
         MP/SDA.cpp

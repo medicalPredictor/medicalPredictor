@@ -22,46 +22,46 @@ void printVariantLog(std::vector < vector<int> > variantList, string outfile, ve
 void printLog(vector<int> TotalNewInfectLog, string outfile);
 vector<double> runRun(string Outputfile, int sims, int nn, int variantSize, double alpha, double recov, double decay, double death, double variantProb, std::vector<int> listOfPoints, std::vector < vector<int> > variantList, vector < int > newInfectedDate, bool FileFlag);
 
-/**
- * Prints an integer vector. Mostly for debugging purposes.
- *
- * @param vec  A vector of intergers of any length.
- * @return          If the program completes successfully, returns 0.
- */
-int printVector(vector<int> vec) {
-    for (int y = 0; y < vec.size(); y++) {
-        cout << vec[y] << " ";
-    }
-    cout << "\n";
-    return (0);
-}
-
-/**
- * Prints an integer vector to stream. Mostly for debugging purposes.
- *
- * @param vec  A vector of intergers of any length.
- * @return          If the program completes successfully, returns 0.
- */
-int printVector(vector<int> vec, ofstream & vals) {
-    for (int y = 0; y < vec.size(); y++) {
-        vals << vec[y] << " ";
-    }
-    vals << "\n";
-    return (0);
-}
-
-/**
- * Prints a vector of doubles. Mostly for debugging purposes.
- *
- * @param vec  A vector of doubles of any length.
- * @return          If the program completes successfully, returns 0.
- */
-int printVector(vector<double> vec) {
-    for (int y = 0; y < vec.size(); y++) {
-        cout << vec[y] << " ";
-    }
-    cout << "\n";
-    return (0);
-}
+///**
+// * Prints an integer vector. Mostly for debugging purposes.
+// *
+// * @param vec  A vector of intergers of any length.
+// * @return          If the program completes successfully, returns 0.
+// */
+//int printVector(vector<int> vec) {
+//    for (int y = 0; y < vec.size(); y++) {
+//        cout << vec[y] << " ";
+//    }
+//    cout << "\n";
+//    return (0);
+//}
+//
+///**
+// * Prints an integer vector to stream. Mostly for debugging purposes.
+// *
+// * @param vec  A vector of intergers of any length.
+// * @return          If the program completes successfully, returns 0.
+// */
+//int printVector(vector<int> vec, ofstream & vals) {
+//    for (int y = 0; y < vec.size(); y++) {
+//        vals << vec[y] << " ";
+//    }
+//    vals << "\n";
+//    return (0);
+//}
+//
+///**
+// * Prints a vector of doubles. Mostly for debugging purposes.
+// *
+// * @param vec  A vector of doubles of any length.
+// * @return          If the program completes successfully, returns 0.
+// */
+//int printVector(vector<double> vec) {
+//    for (int y = 0; y < vec.size(); y++) {
+//        cout << vec[y] << " ";
+//    }
+//    cout << "\n";
+//    return (0);
+//}
 
 #endif

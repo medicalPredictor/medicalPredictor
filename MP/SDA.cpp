@@ -121,25 +121,25 @@ int SDA::copy(SDA &other) {
     return 0;
 }
 
-int SDA::twoPtCrossover(SDA &other) {
+int SDA::twoPointCrossover(SDA &other) {
     if (initChar < 0) {
-        cout << "Error in SDA Class: twoPtCrossover(...): this SDA has not been initialized.";
+        cout << "Error in SDA Class: twoPointCrossover(...): this SDA has not been initialized.";
         return -1;
     }
     if (other.initChar < 0) {
-        cout << "Error in SDA Class: twoPtCrossover(...): other SDA has not been initialized.";
+        cout << "Error in SDA Class: twoPointCrossover(...): other SDA has not been initialized.";
         return -1;
     }
     if (numStates != other.numStates) {
-        cout << "Error in SDA Class: twoPtCrossover(...): the two SDAs have a different numStates.";
+        cout << "Error in SDA Class: twoPointCrossover(...): the two SDAs have a different numStates.";
         return 1;
     }
     if (numChars != other.numChars) {
-        cout << "Error in SDA Class: twoPtCrossover(...): the two SDAs have a different numChars.";
+        cout << "Error in SDA Class: twoPointCrossover(...): the two SDAs have a different numChars.";
         return 1;
     }
     if (maxRespLen != other.maxRespLen) {
-        cout << "Error in SDA Class: twoPtCrossover(...): the two SDAs have a different maxRespLen.";
+        cout << "Error in SDA Class: twoPointCrossover(...): the two SDAs have a different maxRespLen.";
         return 1;
     }
 
