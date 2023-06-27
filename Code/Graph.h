@@ -5,7 +5,7 @@
 #include <iostream>
 #include <time.h>
 #include <fstream>
-#include "GraphGen.h"
+//#include "GraphGen.h"
 
 using namespace std;
 
@@ -14,7 +14,7 @@ public:
     // functions go here
     int initialize(int nn1, vector<int> bitspray, int immunityStringSize, vector<int> bitspray2, double alpha1,
                    double recProb1, double decProb1, double
-                   deathProb1);
+                   deathProb1, double variantProb1);
 
     int addVariant(vector<int> bits, int len);
     int printVariantList();
@@ -60,6 +60,7 @@ private:
     double recProb;     // Daily likelihood of recovering (while infected)
     double decProb;     // Daily likelihood of losing immunity (state -1 or 0)
     double deathProb;   // Daily likelihood of dying (while infected)
+	double variantProb;   // Daily likelihood of generating a new Variant
     vector<vector<int> > adj;  // Adjacency matrix
     int nn; // Number of nodes
     int immunitySize; // Size of the immunity and variant string

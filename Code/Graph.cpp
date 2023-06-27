@@ -14,7 +14,7 @@
  * @return          If the program completes successfully, returns 0.
  */
 int Graph::initialize(int nn1, vector<int> bitspray, int immunityStringSize, vector<int> bitspray2, double alpha1, double recProb1, double decProb1, double
-deathProb1) {
+deathProb1, double variantProb1) {
     nn = nn1;
     int counter = 0;
 	
@@ -44,7 +44,8 @@ deathProb1) {
     alpha = alpha1;
     recProb = recProb1;
     decProb = decProb1;
-    deathProb = deathProb1; // TODO: Update so that it is an argument.
+    deathProb = deathProb1; 
+	variantProb = variantProb1;// TODO: Update so that it is an argument.
 //    deathProb = 0.00168214; // TODO: Update so that it is an argument.
 
     immunitySize = immunityStringSize;
@@ -817,7 +818,16 @@ vector<int> Graph::simulation(string outfile, std::vector < vector<int> > varian
 		(*TotalNewVariantInfectedLog).pop_back();
 	}
 	//cout << (*TotalNewVariantInfectedLog).size() << "\n";
-    int newVariantsFlag = 2;
+    int newVariantsFlag = 0;
+	//cout << newInfectedDate.size() << "\n";
+	if(newInfectedDate.size() == 0)
+	{
+		newVariantsFlag = 1;
+	}
+	if(newInfectedDate.size() > 0)
+	{
+		newVariantsFlag = 2;
+	}
 //    srand48((int) time(NULL));
 //	srand((int) time(NULL));
     std::vector<int> listOfPoints;
@@ -862,7 +872,7 @@ vector<int> Graph::simulation(string outfile, std::vector < vector<int> > varian
 
     int max_timeSteps = 1000;
     int count = 0;
-    double variantProb = 0.01;
+    //double variantProb = 0.01;
 
     vector<int> stats;
     stats = nextTimeStep();

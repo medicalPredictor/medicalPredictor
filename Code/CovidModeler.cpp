@@ -20,10 +20,10 @@ int main() {
     ReadData("../bs_test.txt", &listOfPoints, 100000);
 	ReadData2("../variants.txt", &variantList, 100000);
 	vector<double> results;
-	results = runRun(Outputfile, sims, 0.63, 0.126, 0.006666, 0.00168214, listOfPoints, variantList, newInfectedDate, false);
+	results = runRun(Outputfile, sims, 256, 7, 0.63, 0.126, 0.006666, 0.00168214, 0.01, listOfPoints, variantList, newInfectedDate, false);
 }
 
-vector<double> runRun(string Outputfile, int sims, double alpha, double recov, double decay, double death, std::vector<int> listOfPoints, std::vector < vector<int> > variantList, vector < int > newInfectedDate, bool FileFlag)
+vector<double> runRun(string Outputfile, int sims, int nn, int variantSize, double alpha, double recov, double decay, double death, double variantProb, std::vector<int> listOfPoints, std::vector < vector<int> > variantList, vector < int > newInfectedDate, bool FileFlag)
 {
 	ofstream vals;
 	int variants = 0;
@@ -41,7 +41,7 @@ vector<double> runRun(string Outputfile, int sims, double alpha, double recov, d
 	
     for (int y = 0; y < sims; y++) {
 		//a = new Graph;
-		a.initialize(256, listOfPoints, variantList[0].size(), variantList[0], alpha, recov, decay, death);
+		a.initialize(nn, listOfPoints, variantSize, variantList[0], alpha, recov, decay, death, variantProb);
         All_the_simulations.push_back(a.simulation(Outputfile, variantList, &variants, newInfectedDate, &TotalNewVariantInfectedLog, FileFlag));
 		//delete a;
     }
