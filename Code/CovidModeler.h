@@ -1,3 +1,6 @@
+#ifndef CM_H
+#define CM_H
+
 #include <cmath>
 #include <list>
 #include <sstream>
@@ -60,3 +63,5 @@ int printVector(vector<double> vec) {
     cout << "\n";
     return (0);
 }
+
+#endif
