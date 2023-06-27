@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(medicalPredictor)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 include_directories(Code)
 
@@ -11,9 +11,9 @@ add_executable(medicalPredictor
         Code/Graph.h
         Code/CovidModeler.h)
 
-add_executable(BitsprayerTest
-        Code/Bitsprayer.cpp
-        Code/Bitsprayer.h
+add_executable(SDATest
+        MP/SDA.cpp
+        MP/SDA.h
         )
 
 add_executable(MetricsTest

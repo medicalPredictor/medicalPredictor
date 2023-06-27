@@ -1,10 +1,10 @@
 Files will be structured as follows:
-README.DAT
+README.DAT ()
 [Name for experiment]
 ___
 [List of parameters]
 
-DATA.DAT
+DATA.DAT (DATA2.DAT)
 [Name for experiment]
 ___
 [Epi 1 New Infections]

@@ -1,0 +1,8 @@
+Experiment 1
+___
+nodes 256
+variantList[0].size 7
+alpha 0.63
+recovery 0.126
+decay 0.006666
+death 0.00168214

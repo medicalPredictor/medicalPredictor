@@ -47,7 +47,7 @@ def get_variants():
     return variants
 
 
-def count_mismatches(immunity: [], variant: []):
+def count_mismatches(immunity: List, variant: List):
     potent_cnt = 0
     total_cnt = 0
     for val in variant:
@@ -60,15 +60,21 @@ def count_mismatches(immunity: [], variant: []):
             potent_cnt += 1
             pass
         pass
+    if total_cnt == 0:
+        print("The following list has zero ones: ")
+        print(variant)
+        pass
     return potent_cnt, total_cnt
 
 
 def gen_new_variant(idx: int):
     variants = get_variants()
+    print("Variant " + str(idx) + ": ", end="")
+    print(variants[idx])
     return variants[idx]
 
 
-def StoI(variant_str: [], immunity_str: []):
+def StoI(variant_str: List, immunity_str: List):
     for idx in range(len(variant_str)):
         if variant_str[idx] == 1:
             immunity_str[idx] += 1
@@ -77,7 +83,7 @@ def StoI(variant_str: [], immunity_str: []):
     return immunity_str
 
 
-def decay(variant_str: [], immunity_str: []):
+def decay(variant_str: List, immunity_str: List):
     for idx in range(len(variant_str)):
         if variant_str[idx] == 1:
             immunity_str[idx] -= 1
@@ -87,7 +93,7 @@ def decay(variant_str: [], immunity_str: []):
 
 
 def run_epi(adj: List[List[int]], p0, var_prob: float, death_prob: float, decay_prob: float, rec_prob: float,
-            var_timesteps: [] or None):
+            var_timesteps: List or None):
     num_nodes = len(adj)
     var_count = 0
     n_state = [0 for _ in range(num_nodes)]
@@ -102,13 +108,15 @@ def run_epi(adj: List[List[int]], p0, var_prob: float, death_prob: float, decay_
     variants = []
 
     num_infected = 1
+    new_infected = 1
     ttl_infected = 0
     time_step = 0
     length = 0
 
     immunity = [[0 for _ in range(immunity_length)] for _ in range(num_nodes)]
     variants.append(gen_new_variant(var_count))
-    immunity[0] = variants[var_count]  # immunity for current variant
+    immunity[0] = []
+    immunity[0].extend(variants[var_count])  # immunity for current variant
     var_count += 1
     var_logs.append([0, [1]])
 
@@ -154,15 +162,15 @@ def run_epi(adj: List[List[int]], p0, var_prob: float, death_prob: float, decay_
                     pass
                 pass
             pass
-        ttl_infected += num_infected
-        num_infected = 0
+        ttl_infected += new_infected
+        new_infected = 0
         new_inf = []
         for log in var_logs:
             log[1].append(0)
             pass
 
         for node in range(num_nodes):
-            if len(inf_logs[node]) and random.random() < decay_prob:
+            if len(inf_logs[node]) > 0 and random.random() < decay_prob:
                 to_rmv = inf_logs[node][0]
                 inf_logs[node] = inf_logs[node][1:]
                 immunity[node] = decay(variants[to_rmv], immunity[node])
@@ -176,15 +184,18 @@ def run_epi(adj: List[List[int]], p0, var_prob: float, death_prob: float, decay_
                 if random.random() < rec_prob:
                     n_state[n] = 0
                     new_recoveries += 1
+                    num_infected -= 1
                     pass
                 elif random.random() < death_prob:
                     n_state[n] = 2
                     new_deaths += 1
+                    num_infected -= 1
                     pass
                 pass
             elif n_state[n] == 3:  # new infected -> infected
                 n_state[n] = 1
                 num_infected += 1
+                new_infected += 1
                 new_inf.append(n)
                 immunity[n] = StoI(variants[v_state[n]], immunity[n])
                 var_logs[v_state[n]][1][-1] += 1
@@ -194,7 +205,7 @@ def run_epi(adj: List[List[int]], p0, var_prob: float, death_prob: float, decay_
             elif n_state[n] == 2:  # removed
                 pass
         epi_log.append(new_inf)
-        IDR_logs[0].append(len(new_inf))
+        IDR_logs[0].append(new_infected)
         IDR_logs[1].append(new_deaths)
         IDR_logs[2].append(new_recoveries)
         length += 1
@@ -278,6 +289,39 @@ def make_prof(adj_lists: List[List[int]], nodes: int, p0):
     return avg_prof
 
 
+def make_file(epi_log, IDR_log, var_log):
+    with open("./DATA2.DAT", "w") as f:
+        f.write("Experiment 1\n___\n")
+        for epi in range(len(IDR_log)):
+            for val in IDR_log[epi][0]:
+                f.write(str(val) + " ")
+                pass
+            f.write("\n")
+            for val in IDR_log[epi][1]:
+                f.write(str(val) + " ")
+                pass
+            f.write("\n")
+            for val in IDR_log[epi][2]:
+                f.write(str(val) + " ")
+                pass
+            f.write("\n___\n")
+            for idx, log in enumerate(var_log[epi]):
+                for bit in gen_new_variant(idx):
+                    f.write(str(bit) + " ")
+                    pass
+                f.write("\nStart Date: ")
+                f.write(str(log[0]) + "\n")
+                for val in log[1]:
+                    f.write(str(val) + " ")
+                    pass
+                f.write("\n")
+                pass
+            f.write("___\n")
+            pass
+        pass
+    pass
+
+
 def main():
     num_nodes = 256
     var_prob = 0.01
@@ -311,16 +355,22 @@ def main():
         lists.append(li)
         pass
 
+    multi_IDR, multi_var_logs = [], []
     var_timesteps = [5, 10, 15]
-    var_timesteps = [1, 2, 3, 4, 5]
-    epi_log, IDR_logs, var_logs = run_epi(lists, 0, var_prob, death_prob, decay_prob, rec_prob, var_timesteps)
-    print(epi_log)
-    print(IDR_logs[0])
-    print(IDR_logs[1])
-    print(IDR_logs[2])
-    for log in var_logs:
-        print(log)
+    for _ in range(10):
+        epi_log, IDR_logs, var_logs = run_epi(lists, 0, var_prob, death_prob, decay_prob, rec_prob, var_timesteps)
+        print(epi_log)
+        print(IDR_logs[0])
+        print(IDR_logs[1])
+        print(IDR_logs[2])
+        for log in var_logs:
+            print(log)
+            pass
+        multi_IDR.append(IDR_logs)
+        multi_var_logs.append(var_logs)
         pass
+
+    make_file(epi_log, multi_IDR, multi_var_logs)
     return 0
 
     pass

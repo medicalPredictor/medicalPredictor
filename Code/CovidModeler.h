@@ -15,6 +15,9 @@ void writeToFile(vector<int> data, string filename);
 vector<int> simulation(string outfile, std::vector < vector<int> > variantList, int * variants, vector < int > newInfectedDate, vector < vector < int > > * TotalNewVariantInfectedLog);
 int printVector(vector<int> vec);
 void ReadData2(string input1, std::vector <std::vector<int> > *listOfPoints, int linesize);
+void printVariantLog(std::vector < vector<int> > variantList, string outfile, vector < int > newInfectedDate, vector < vector < int > > * TotalNewVariantInfectedLog, int * final1);
+void printLog(vector<int> TotalNewInfectLog, string outfile);
+vector<double> runRun(string Outputfile, int sims, double alpha, double recov, double decay, double death, std::vector<int> listOfPoints, std::vector < vector<int> > variantList, vector < int > newInfectedDate);
 
 /**
  * Prints an integer vector. Mostly for debugging purposes.
