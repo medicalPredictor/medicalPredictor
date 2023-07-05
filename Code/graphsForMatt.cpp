@@ -146,29 +146,40 @@ int main() {
 
     vector<vector<int> > connected;
     connected= completeGraph(size);
+    vector<int> connectedBitString = makeBitString(connected);
     printf("%s a complete graph with %d nodes\n", genericPrint, size);
     printAdj(connected);
-
+    printf("As bit string: %s \n", connectedBitString);
+    
     vector<vector<int> > path;
     path = pathGraph(size);
+    vector<int> pathBitString = makeBitString(path);
     printf("%s a path graph with %d nodes\n", genericPrint, size);
     printAdj(path);
+    printf("As bit string: %s \n", pathBitString);
+
 
     vector<vector<int> > randy;
     randy = randomGraph(size, prob);
+    vector<int> randyBitString = makeBitString(randy);
     printf("%s a random graph of size %d and edge probability of %f \n", genericPrint, size, prob);
     printAdj(randy);
- 
+    printf("As bit string: %s \n", randyBitString);
+
     vector<vector<int> > randyTree;
     randyTree = randomTree(size);
+    vector<int> randyTreeBitString= makeBitString(randyTree);
     printf("%s a random tree graph of size %d \n", genericPrint, size);
     printAdj(randyTree);
+    printf("As bit string: %s \n", randyTreeBitString);
 
-    vector<vector<int> > tree;
+    vector<vector<int> > eTree;
     int averageBranches = 2;
-    tree = evenTree(size,averageBranches);
+    eTree = evenTree(size,averageBranches);
+    vector<int> eTreeBitString= makeBitString(randyTree);
     printf("%s a tree graph of size %d with %d branches in each level \n", genericPrint, size, size/averageBranches);
-    printAdj(tree);
+    printAdj(eTree);
+    printf("As bit string: %s \n", eTreeBitString);
 
     return 0;
 }
