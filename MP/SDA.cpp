@@ -232,13 +232,11 @@ int SDA::mutate(int numMuts) {
     int respSize;
 
     for (int mut = 0; mut < numMuts; ++mut) {
-        mutPt = (int) lrand48() % (2 * numStates + 1);
-
-        if (mutPt == 0) {
+        if (drand48() < 0.04) {
             initChar = (int) lrand48() % numChars;
             return 0;
         }
-        mutPt = (mutPt - 1) / 2;
+        mutPt = lrand48() % numStates;
         int transNum = (int) lrand48() % numChars;
         if ((int) lrand48() % 2 == 0) { // Mutate transition
             transitions.at(mutPt).at(transNum) = (int) lrand48() % numStates;

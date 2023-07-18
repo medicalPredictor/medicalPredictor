@@ -2,6 +2,15 @@
 #include <algorithm>
 #include "SDA.h"
 #include "CovidModeler.h"
+#include <cstdlib>
+#include <cstdio>
+#include <iomanip>
+#include <string>
+#include <sys/stat.h>
+#include <bitset>
+#include <numeric>
+#include <algorithm>
+#include <cassert>
 
 using namespace std;
 
@@ -31,46 +40,47 @@ vector<int> sdaOutput;
 SDA *population;
 double *fitnessVals;
 
-int getCommandLineArgs(char *arguements[]);
+int getCommandLineArgs(char *arguments[]);
 int initializeSystem();
 int shutdownSystem();
 double fitness(SDA &sda);
 int makeVariants();
+int report(ostream &outStrm);
 
-int getCommandLineArgs(char *arguements[]){
+int getCommandLineArgs(char *arguments[]) {
     string argVal;
     size_t pos;
 
-    pathToProfile = arguements[1];
-    argVal = arguements[2];
+    pathToProfile = arguments[1];
+    argVal = arguments[2];
     numNodes = stoi(argVal, &pos);
-    numPotentialEdges = numNodes * (numNodes-1)/2;
+    numPotentialEdges = numNodes * (numNodes - 1) / 2;
     sdaOutput.reserve(numPotentialEdges);
-    for (int i = 0; i < numPotentialEdges; i++){
+    for (int i = 0; i < numPotentialEdges; i++) {
         sdaOutput.push_back(0);
     }
-    argVal = arguements[3];
+    argVal = arguments[3];
     numRuns = stoi(argVal, &pos);
-    argVal = arguements[4];
+    argVal = arguments[4];
     populationSize = stoi(argVal, &pos);
-    argVal = arguements[5];
+    argVal = arguments[5];
     numGenerations = stoi(argVal, &pos);
-    argVal = arguements[6];
+    argVal = arguments[6];
     tournSize = stoi(argVal, &pos);
-    argVal = arguements[7];
+    argVal = arguments[7];
     crossoverRate = stod(argVal, &pos);
-    argVal = arguements[8];
+    argVal = arguments[8];
     mutationRate = stod(argVal, &pos);
-    argVal = arguements[9];
+    argVal = arguments[9];
     numMutations.first = stoi(argVal, &pos);
-    argVal = arguements[10];
+    argVal = arguments[10];
     numMutations.second = stoi(argVal, &pos);
-    argVal = arguements[11];
+    argVal = arguments[11];
     seed = stoi(argVal, &pos);
     return 0;
 }
 
-int initializeSystem(){
+int initializeSystem() {
     srand48(time(nullptr));
     srand48(seed);
 
@@ -80,16 +90,15 @@ int initializeSystem(){
     return 0;
 }
 
-int initializePopulation(){
-    for (int idx=0; idx < populationSize; idx++){
+int initializePopulation() {
+    for (int idx = 0; idx < populationSize; idx++) {
         population[idx] = SDA(12, 2, 2, numPotentialEdges);
         fitnessVals[idx] = fitness(population[idx]);
-        cout<<"Initialized One Dude"<<endl;
     }
     return 0;
 }
 
-int makeVariants(){
+int makeVariants() {
     vector<int> oneVariant;
     oneVariant.reserve(variantLength);
     for (int var = 0; var < numVariants; ++var) {
@@ -102,14 +111,14 @@ int makeVariants(){
     return 0;
 }
 
-double fitness(SDA &sda){
+double fitness(SDA &sda) {
     double accu = 0.0;
 
     sda.fillOutput(sdaOutput);
     vector<double> avgProfile;
-    avgProfile = runRun("thing.cpp", 30, numNodes, variantLength, alphaProb, recovProb, decayProb, deathProb, variantProb, sdaOutput, variants, {}, false);
+    avgProfile = runRun("thing.cpp", numSimulations, numNodes, variantLength, alphaProb, recovProb, decayProb,
+                        deathProb, variantProb, sdaOutput, variants, {}, false);
     for (int i = 0; i < avgProfile.size(); ++i) {
-
         accu += avgProfile[i];
     }
     return accu;
@@ -168,11 +177,77 @@ void matingEvent() {
 
     // Reset dead SDAs
     population[tournIdxs[0]].fillOutput(sdaOutput);
+    fitnessVals[tournIdxs[0]] = fitness(population[tournIdxs[0]]);
     population[tournIdxs[1]].fillOutput(sdaOutput);
+    fitnessVals[tournIdxs[1]] = fitness(population[tournIdxs[1]]);
 }
 
-int shutdownSystem(){
+int shutdownSystem() {
     delete[] population;
     delete[] fitnessVals;
+    return 0;
+}
+
+vector<double> calcStats(const vector<int> &goodIdxs, bool biggerBetter) {
+    double sum = 0.0;
+    double bestVal = (biggerBetter ? 0.0 : MAXFLOAT);
+    double worstVal = (biggerBetter ? MAXFLOAT : 0.0);
+
+    for (int idx: goodIdxs) {
+        sum += fitnessVals[idx];
+        if ((biggerBetter && fitnessVals[idx] > bestVal) || (!biggerBetter && fitnessVals[idx] < bestVal)) {
+            bestVal = fitnessVals[idx];
+        }
+        if ((biggerBetter && fitnessVals[idx] < worstVal) || (!biggerBetter && fitnessVals[idx] > worstVal)) {
+            worstVal = fitnessVals[idx];
+        }
+    }
+
+    double mean = sum / (double) goodIdxs.size();
+    double stdDevSum = 0.0;
+    for (int idx: goodIdxs) {
+        stdDevSum += pow(fitnessVals[idx] - mean, 2);
+    }
+    double stdDev = sqrt(stdDevSum / ((double) goodIdxs.size() - 1.0));
+    double CI95 = 1.96 * (stdDev / sqrt((double) goodIdxs.size()));
+
+    return {mean, stdDev, CI95, bestVal, worstVal}; // {mean, stdDev, 95CI, best, worst}
+}
+
+int cmdLineIntro() {
+    cout << left << setw(4) << "Run";
+    cout << left << setw(4) << "Int";
+    cout << left << setw(10) << "Mean";
+    cout << left << setw(12) << "95%CI";
+    cout << left << setw(10) << "StdDev";
+    cout << left << setw(12) << "Best" << endl;
+    return 0;
+}
+
+int report(ostream &outStrm) {
+    vector<int> goodIdxs;
+    int deaths = 0;
+
+    goodIdxs.reserve(populationSize);
+    for (int i = 0; i < populationSize; i++) {
+        goodIdxs.push_back(i);
+    }
+
+    vector<double> stats = calcStats(goodIdxs, true);
+    double mean = stats[0];
+    double stdDev = stats[1];
+    double CI95 = stats[2];
+    double bestVal = stats[3];
+    double worstVal = stats[4];
+
+    outStrm << left << setw(10) << mean;
+    outStrm << left << setw(12) << CI95;
+    outStrm << left << setw(10) << stdDev;
+    outStrm << left << setw(12) << bestVal << endl;
+
+//    cout << left << setw(10) << mean;
+//    cout << left << setw(12) << CI95;
+//    cout << left << setw(10) << stdDev;
+//    cout << left << setw(12) << bestVal << endl;
     return 0;
 }
